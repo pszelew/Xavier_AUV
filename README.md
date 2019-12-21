@@ -17,14 +17,16 @@ To setup all paths edit models.json file in models folder. Eg
 ```
 Means that files for this neural networks alre supplied in models/modelYOLO_path folder, tensor in which image will be 
 
-##Modules
-*Nvidia Jetpack 4.3:
+## Modules
+```
+Nvidia Jetpack 4.3:
     -CUDA
     -CUDNN
     -TensorRT
     -MultimediaAPI
     -Computer Vision
     -CUDA Toolkit
-*Tensorflow-gpu
-*Numpy
-*Keras
+Tensorflow-gpu
+Numpy
+Keras
+```
