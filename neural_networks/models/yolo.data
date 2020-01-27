@@ -1,0 +1,4 @@
+classes=80
+train=fake
+valid=fake
+names=/home/nvidia/test_michal/Xavier_AUV/neural_networks/models/yolo.names
