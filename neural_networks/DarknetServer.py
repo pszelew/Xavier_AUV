@@ -30,14 +30,21 @@ if __name__ == "__main__":
 
     @server.route("/predict_with_image", methods=["GET"])
     def predict_with_image():
+        start = time.time()
         img = cam_client.frame
+        getting_frame = time.time()-start
         start = time.time()
         result = model.predict(img)
         global predict_time 
         predict_time = time.time()-start
-        logger.log(f"INFO: prediction time: " + str(predict_time))
+        start = time.time()
         result.append(img)
-        return pickle.dumps(result)
+        result = pickle.dumps(result)
+        packing_time = time.time()-start
+        logger.log(f"INFO: prediction time: " + str(round(predict_time, 4)) + " getting frame time: " +
+                   str(round(getting_frame, 4)) + " message append and picke: " + str(round(packing_time, 4)) +
+                   " sum:" + str(round(predict_time+getting_frame + packing_time, 4)))
+        return result
 
     @server.route("/predict", methods=["GET"])
     def predict():
