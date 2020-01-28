@@ -3,9 +3,8 @@ File contains interface for task executor
 """
 import  abc
 from typing import Dict
-from vision.base_camera_itf import IBaseCamera
+from camera_server.CameraClient import CameraClient
 
-Cameras = Dict[str, IBaseCamera]
 
 class ITaskExecutor(metaclass=abc.ABCMeta):
     """
@@ -17,15 +16,13 @@ class ITaskExecutor(metaclass=abc.ABCMeta):
     Every sub-algorithm also implement his interface
     """
     @abc.abstractmethod
-    def __init__(self, contorl_dict, sensors_dict, cameras_dict: Cameras, main_logger):
+    def __init__(self, contorl_dict, sensors_dict, camera_client: CameraClient, main_logger):
         """
         @param: movement_object is an object of Movements Class
             keywords: movements; torpedoes; manipulator;
         @param: sensors_dict is a dictionary of references to sensors objects
             keywords: ahrs; depth; hydrophones; distance;
-        @param: cameras_dict is a dictionary of references to cameras objects
-            keywords: arm_camera; bottom_camera; front_cam1; bumper_cam_right; bumper_cam_left;
-            for cameras objects look at /vision/front_cam_1.py
+        @param: camera_client is CameraClient object
         @param: main_logger is a reference to logger of main thread
         """
         pass
