@@ -3,14 +3,14 @@ import time
 import pickle
 import os
 import argparse as ap
-from utils.DarknetYoloModel import DarknetYoloModel
+from neural_networks.utils.DarknetYoloModel import DarknetYoloModel
 from camera_server.CameraClient import CameraClient
 from utils.project_managment import PROJECT_ROOT
-from definitions import DARKNET_PORT, IP_ADDRESS
+from definitions import DARKNET_PORT, IP_ADDRESS, LOG_DIRECOTRY
 from logpy.LogPy import Logger
 
 if __name__ == "__main__":
-    logger = Logger(filename='darknet_server', title="Darknet_Server")
+    logger = Logger(filename='darknet_server', title="Darknet_Server", directory=LOG_DIRECOTRY)
 
     parser = ap.ArgumentParser(description="Darknet yolo server")
     #parser.add_argument("-p", '--port', default=5000, type=int, help="Port on which server will be run")

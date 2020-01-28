@@ -5,6 +5,7 @@ import argparse as ap
 import cv2
 from logpy.LogPy import Logger
 from utils.project_managment import PROJECT_ROOT
+from definitions import LOG_DIRECOTRY
 
 class DarknetClient():
     """
@@ -17,7 +18,7 @@ class DarknetClient():
         """
         self.port = str(port)
         self.url = url
-        self.logger = Logger(filename='darknet_client', title="Darknet_Client")
+        self.logger = Logger(filename='darknet_client', title="Darknet_Client", directory=LOG_DIRECOTRY, logexists='append')
 
     def load_model(self, model_name, retries=3) -> bool:
         """
@@ -32,10 +33,13 @@ class DarknetClient():
                 server_url = self.url + ":" + self.port + "/load_model"
                 req = requests.post(url=server_url,data = data)
                 result = req.content
+                self.logger.log("Model loaded correctly")
                 break
-            except Exception:
+            except Exception as e:
                 time.sleep(0.1)
                 result = False
+                self.logger.log(str(e))
+        
         return result
 
     def change_camera(self,camera,retries = 3) -> bool:
