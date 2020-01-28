@@ -6,13 +6,14 @@ import argparse as ap
 from utils.DarknetYoloModel import DarknetYoloModel
 from camera_server.CameraClient import CameraClient
 from utils.project_managment import PROJECT_ROOT
+from definitions import DARKNET_PORT, IP_ADDRESS
 from logpy.LogPy import Logger
 
 if __name__ == "__main__":
     logger = Logger(filename='darknet_server', title="Darknet_Server")
 
     parser = ap.ArgumentParser(description="Darknet yolo server")
-    parser.add_argument("-p", '--port', default=5000, type=int, help="Port on which server will be run")
+    #parser.add_argument("-p", '--port', default=5000, type=int, help="Port on which server will be run")
     parser.add_argument("-m", '--model', required=True, type=str, help="Path to model folder, relative to project root")
     parser.add_argument("-t", '--threshold', default=0.5, type=float, help="Detection threshold (from 0 to 1)")
 
@@ -90,4 +91,4 @@ if __name__ == "__main__":
         # add return false if operation failsed 
         return 'true'
 
-    server.run(host='192.168.0.234', port=args.port)
+    server.run(host=IP_ADDRESS, port=DARKNET_PORT)

@@ -34,7 +34,6 @@ class Main():
         '''
         Creates and stores references of all slave objects.
         '''
-        mode = MAINDEF.MODE
 
         self.logger = Logger(filename='main', title="Main")
 
