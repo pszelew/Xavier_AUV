@@ -1,0 +1,5 @@
+gate
+red_flare
+yellow_flare
+buckets_task
+bucket
