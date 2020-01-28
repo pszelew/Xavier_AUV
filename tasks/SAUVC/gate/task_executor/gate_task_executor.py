@@ -8,12 +8,14 @@ import cv2
 import math as m
 import numpy as np
 
+from neural_networks.DarknetClient import DarknetClient
+from definitions import IP_ADDRESS, DARKNET_PORT
+
 class GateTaskExecutor(ITaskExecutor):
 
     ###Initialization###
     def __init__(self, contorl_dict: Movements, sensors_dict, camera_client, main_logger):
         self._control = contorl_dict
-        self._front_camera = camera_client['front_cam1']
         self._bounding_box = BoundingBox(0, 0, 0, 0)
         self._logger = main_logger
         self.config = get_config("tasks")['gate_task']
@@ -21,18 +23,20 @@ class GateTaskExecutor(ITaskExecutor):
         # angle might be set differently in config.json
         self.number = 0
         self.path = []
-
+        self.darknet_client = DarknetClient(DARKNET_PORT, "http://"+IP_ADDRESS) # TODO - chnge in client to paste https
+        #is_model_loaded = self.darknet_client.load_model('coke')
+        #self._logger.log("Loding model: "+str(is_model_loaded))
 
     ###Start the gate algorithm###
     def run(self):
-        MAX_TIME_SEC = self.config['max_time_sec'] #w configu trzeba zmienic bo na razie jest do samego gate
+        MAX_TIME_SEC = self.config['search']['max_time_sec'] #w configu trzeba zmienic bo na razie jest do samego gate
         self._logger.log("Gate task executor started")
         self._control.pid_turn_on()
 
         stopwatch = Stopwatch()
         stopwatch.start()
 
-        if stopwatch >= MAX_TIME_SEC:
+        if stopwatch.time() >= MAX_TIME_SEC:
             self._logger.log("TIME EXPIRED GATE NOT FOUND")
             self._control.set_ang_velocity(0, 0, 0)
 
@@ -58,19 +62,24 @@ class GateTaskExecutor(ITaskExecutor):
 
         stopwatch = Stopwatch()
         stopwatch.start()
-        self._logger.log("started find gate loop")
+        self._logger.log("started to find gate loop")
 
+        result = self.darknet_client.predict()
+
+        if not result:
+            self._logger.log("Empty bounding box")
+        else:
+            self._logger.log(str(result))
         while True:
-            img = self._front_camera.get_image()
-
-            if self.is_this_gate(img):
-                # TODO: zlokalizuj bramkę
-                # gate = {"x", "y", "angle"}
-                # TODO: zlokalizuj przeszkodę
-                # obstacle = "{"x", "y"}
-                # more info in create_path comment
-                self.create_path(gate, obstacle)    #W trajektorii musi byc uwzgledniona przeszkoda funkcja wyszukujaca przeszkode is_this_obstacle(bounding_box, img):
-                return True
+            pass
+            #if self.is_this_gate(img):
+            # TODO: zlokalizuj bramkę
+            # gate = {"x", "y", "angle"}
+            # TODO: zlokalizuj przeszkodę
+            # obstacle = "{"x", "y"}
+            # more info in create_path comment
+            #    self.create_path(gate, obstacle)    #W trajektorii musi byc uwzgledniona przeszkoda funkcja wyszukujaca przeszkode is_this_obstacle(bounding_box, img):
+            return True
 
 
 
@@ -79,9 +88,9 @@ class GateTaskExecutor(ITaskExecutor):
         #self._logger.log("Dive: setting depth")
         #self._control.pid_set_depth(depth)
         #Czy trzeba najpierw ustawic glebokosc, czy mozna od razu w hold depth to robic?
-        DEPTH = get_config('max_depth')
+        DEPTH = self.config['search']['max_depth']
         self._logger.log("Dive: holding depth")
-        self._control.pid_hold_depth(DEPTH)
+        self._control.pid_set_depth(DEPTH)
 
     def is_this_gate(self, bounding_box, img):
 
