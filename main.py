@@ -22,7 +22,7 @@ from communication.rpi_broker.dropper import Dropper
 #Task sceduller
 from tasks.tasks_scheduler import TaskSchedululer
 
-from definitions import MAINDEF, CAMERAS,IP_ADDRESS, CAMERA_SERVER_PORT
+from definitions import MAINDEF, CAMERAS,IP_ADDRESS, CAMERA_SERVER_PORT, LOG_DIRECOTRY
 
 
 class Main():
@@ -35,10 +35,11 @@ class Main():
         Creates and stores references of all slave objects.
         '''
 
-        self.logger = Logger(filename='main', title="Main")
+        self.logger = Logger(filename='main_xavier', title="Main Xavier", directory=LOG_DIRECOTRY)
+        self.logger.start()
 
         # cameras 
-        self.camera_client = CameraClient(IP_ADDRESS, CAMERA_SERVER_PORT)        
+        self.camera_client = CameraClient(IP_ADDRESS, CAMERA_SERVER_PORT,name_modifer="_main")        
         self.logger.log("Cameras created")
 
         #communication
