@@ -31,8 +31,8 @@ class TaskSchedululer(ITaskExecutor):
 
         self.logger.log("Gate finshed")
 
-        bucket_executor = BucketTaskExecutor(self.control_dict['movements'], self.sensors_dict,
-                                     self.camera_client, self.logger)
-        bucket_executor.run()
+        #bucket_executor = BucketTaskExecutor(self.control_dict['movements'], self.sensors_dict,
+        #                             self.camera_client, self.logger)
+        #bucket_executor.run()
 
         self.logger.log("Buckets finished")

@@ -17,12 +17,12 @@ class BucketTaskExecutor(ITaskExecutor):
         self._hydrophones = sensors_dict['hydrophones']
         self._logger = main_logger
         self.config = get_config("tasks")['buckets_task']
-        self.MAX_TIME_SEC = self.config['max_time_sec']
-        self.PINGER_LOOP_COUNTER = self.config['pinger_loop_conunter']
-        self.BLUE_LOOP_COUNTER = self.config['blue_loop_counter']
-        self.ANY_BUCKET_COUNTER = self.config['any_bucket_counter']
+        self.MAX_TIME_SEC = self.config['search']['max_time_sec']
+        self.PINGER_LOOP_COUNTER = self.config['search']['pinger_loop_counter']
+        self.BLUE_LOOP_COUNTER = self.config['search']['blue_loop_counter']
+        self.ANY_BUCKET_COUNTER = self.config['search']['any_bucket_counter']
         self._control.pid_turn_on()
-        self._control.pid_hold_depth(get_config('depth'))
+        self._control.pid_set_depth(self.config['search']['max_depth'])
 
         self.darknet_client = DarknetClient(DARKNET_PORT, IP_ADDRESS)
 
@@ -39,7 +39,7 @@ class BucketTaskExecutor(ITaskExecutor):
         ## THIS LOOP SHOULD FIND AT LEAST FIRST BBOX WITH BUCKET
         while not self.find_buckets():
             self._logger.log("Finding buckets in progress")
-            if stopwatch >= self.MAX_TIME_SEC:
+            if stopwatch.time() >= self.MAX_TIME_SEC:
                 self._logger.log("Finding buckets time expired")
                 return -1
 
