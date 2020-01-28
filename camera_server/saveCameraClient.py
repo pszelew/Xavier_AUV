@@ -5,15 +5,16 @@ import cv2
 from logpy.LogPy import Logger
 import time
 from datetime import date
+from definitions import LOG_DIRECOTRY, CAMERA_SERVER_PORT, IP_ADDRESS
 
-HOST = "192.168.102"
-PORT = 8888
+HOST = IP_ADDRESS
+PORT = CAMERA_SERVER_PORT
 
 FPS = 20
 WIDTH = 640
 HEIGHT = 480
 
-DEF_VIDEO_DIR ='../videos/'
+DEF_VIDEO_DIR ='../Videos/'
 
 class CameraClient:
     def __init__(self, host=HOST, port=PORT, retry_no=5):
@@ -27,7 +28,8 @@ class CameraClient:
         self.port = port
         self.retryNo = retry_no
         # set logger file
-        self.logger = Logger(filename='cameraClient', title="CameraClient")
+        self.logger = Logger(filename='save_camera_client', title="Save Camera Client", directory=LOG_DIRECOTRY, logexists='append')
+        self.logger.start()
         if not self.__auto_retry(self.__create_socket()):
             self.logger.log(f"ERROR: Create socket failure")
             return

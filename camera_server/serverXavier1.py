@@ -5,9 +5,8 @@ import pickle
 import threading 
 from logpy.LogPy import Logger
 import os
-from definitions import LOG_DIRECOTRY
 
-#opencv-python>=4.1.2.30
+
 # [BUGFIX] Socket binding error: [Errno 98] Address already in use
 # ->  Changing ports between 9999 and 8888 in create_socket() function and client.py may help
 
@@ -25,8 +24,7 @@ class ServerXavier:
         self.bw = black_and_white
         self.retryNo = retry_no
         # set logger file
-        self.logger = Logger(filename='server_xavier', title="ServerXavier", directory=LOG_DIRECOTRY)
-        self.logger.start()
+        self.logger = Logger(filename='serverXavier', title="ServerXavier", logexists='append')
         # start up camera
         self.cameraCapture = cv2.VideoCapture(0)
         if not self.__auto_retry(self.__create_socket()):
