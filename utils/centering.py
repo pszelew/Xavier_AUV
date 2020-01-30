@@ -21,5 +21,5 @@ def center_rov(move, xPos = 0, yPos = 0, Bbox = None):
     previousFlarePosX = xPos
     previousFlarePosY = yPos
 
-    move.move_distance(0, (-xPos * 10 + .Ki * .errorSumX + .Kd * .errorX),
-                            (-yPos * 10 + .Ki * .errorSumY + .Kd * .errorY))
+    move.move_distance(0, (xPos * 10 + .Ki * .errorSumX + .Kd * .errorX),
+                            (yPos * 10 + .Ki * .errorSumY + .Kd * .errorY))

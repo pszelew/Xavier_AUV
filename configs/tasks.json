@@ -50,7 +50,9 @@
             "pinger_loop_counter":3,
             "blue_loop_counter":3,
             "any_bucket_counter":3,
-            "SEARCHING_BUCKETS_FORWARD_TIME":3
+            "SEARCHING_BUCKETS_FORWARD_TIME":3,
+            "PINGER_FREQ":45000,
+            "POSITION_THRESHOLD":50
         },
         "centering": {
             "max_engine_power": 50,
