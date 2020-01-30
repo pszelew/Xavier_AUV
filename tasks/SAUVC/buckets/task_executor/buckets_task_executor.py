@@ -140,9 +140,10 @@ class BucketTaskExecutor(ITaskExecutor):
                 return 0
 
             else:
-                center_rov.(self._control, Bbox = bbox)
+                control = self._control
+                center_rov(control, Bbox = bbox)
                 self._control.set_lin_velocity(front = 20)
-                if center_above_bucket():
+                if center_a//bove_bucket():
                     return 1
                 else:
                     self._logger.log("Could not center above bucket")
@@ -179,7 +180,10 @@ class BucketTaskExecutor(ITaskExecutor):
         self.darknet_client.change_camera("bottom")
         stopwatch = Stopwatch()
         stopwatch.start()
-        while bbox = self.darknet_client.predict() is None and stopwatch.time() < self.MAX_TIME_SEC
+        bbox = self.darknet_client.predict()
+        while bbox is None and stopwatch.time() < self.MAX_TIME_SEC:
+            bbox = self.darknet_client.predict()
+            sleep(0.3)
         if bbox is None:
             self._logger.log("Could not locate bucket")
             return 0
@@ -189,7 +193,8 @@ class BucketTaskExecutor(ITaskExecutor):
         i = 0
         while position_x > self.POSITION_THRESHOLD and position_y > self.POSITION_THRESHOLD:
             self._control.set_lin_velocity(front = position_y * Kp, right = position_x * Kp)
-            if bbox = self.darknet_client.predict() is not None:
+            bbox = self.darknet_client.predict()
+            if bbox is not None:
                 position_x = bbox.x
                 position_y = bbox.y
             i += 1
