@@ -22,6 +22,8 @@ class BucketTaskExecutor(ITaskExecutor):
         self.BLUE_LOOP_COUNTER = self.config['search']['blue_loop_counter']
         self.ANY_BUCKET_COUNTER = self.config['search']['any_bucket_counter']
         self.SEARCHING_BUCKETS_FORWARD_TIME = self.config['search']['SEARCHING_BUCKETS_FORWARD_TIME']
+        self.PINGER_FREQ = self.config['search']['PINGER_FREQ']
+        self.POSITION_THRESHOLD = self.config['search']['POSITION_THRESHOLD']
         self._control.pid_turn_on()
         self._control.pid_set_depth(self.config['search']['max_depth'])
 
@@ -33,7 +35,10 @@ class BucketTaskExecutor(ITaskExecutor):
         self._logger.log("Buckets task exector started")
 
         self.darknet_client.load_model("bucket")
-        
+        '''
+        TO DO: uncomment loading model when its done
+        '''
+        #self.darknet_client.load_model('buckets_task')
         stopwatch = Stopwatch()
         stopwatch.start()
 
@@ -44,7 +49,7 @@ class BucketTaskExecutor(ITaskExecutor):
                 self._logger.log("Finding buckets time expired")
                 return 0
 
-        self.darknet_client.load_model("bucket")
+        #self.darknet_client.load_model("bucket")
         i = 0
         # THIS LOOP SHOULD FIND BUCKET WITH PINGER
         while i < self.PINGER_LOOP_COUNTER:
@@ -81,13 +86,9 @@ class BucketTaskExecutor(ITaskExecutor):
         '''
         Looking for buckets firstly based on pinger, altenatively by vision system
         '''
-        '''
-        TO DO: uncomment loading model when its done
-        '''
-        #self.darknet_client.load_model('buckets_task')
-        freq = 45000 #Hardcoded for Singapore constant pinger freq
+        
         self._logger.log("Starting searching buckets task")
-        angle_to_pinger = self._hydrophones.get_angle(freq) 
+        angle_to_pinger = self._hydrophones.get_angle(self.PINGER_FREQ) 
         if angle_to_pinger:
             bbox = False
             i = 0
@@ -123,10 +124,32 @@ class BucketTaskExecutor(ITaskExecutor):
         After localisation of carpet and buckets
         finding exact position of bucket with pinger
         '''
-        if bucket:
-            self.center_above_bucket(bucket)
-            return 1
+        self._logger.log("Locating exact position of pinger bucket")
+        angle_to_pinger = self._hydrophones.get_angle(self.PINGER_FREQ)
+        bbox = None
+        if angle_to_pinger:
+            i = 0
+            while bbox is None and i < 5:
+                self._control.rotate_angle(angle_to_pinger)
+                sleep(2)
+                bbox = self.darknet_client.predict()
+                angle_to_pinger = self._hydrophones.get_angle(self.PINGER_FREQ)
+                i += 1
+            if bbox is None:
+                self._logger.log("Finding pinger bucke failed")
+                return 0
+
+            else:
+                center_rov.(self._control, Bbox = bbox)
+                self._control.set_lin_velocity(front = 20)
+                if center_above_bucket():
+                    return 1
+                else:
+                    self._logger.log("Could not center above bucket")
+                    return 0
+
         else:
+            self._logger.log("Could not receive signal from hydrophones")
             return 0
 
     def find_blue_bucket(self):
@@ -149,16 +172,37 @@ class BucketTaskExecutor(ITaskExecutor):
         else:
             return 0
 
-    def center_above_bucket(self, bucket_position):
+    def center_above_bucket(self):
         '''
         centering above bucket
         '''
-    
+        self.darknet_client.change_camera("bottom")
+        stopwatch = Stopwatch()
+        stopwatch.start()
+        while bbox = self.darknet_client.predict() is None and stopwatch.time() < self.MAX_TIME_SEC
+        position_x = bbox.x
+        position_y = bbox.y
+        Kp = 0.001
+        i = 0
+        while position_x > self.POSITION_THRESHOLD and position_y > self.POSITION_THRESHOLD:
+            self._control.set_lin_velocity(front = position_y * Kp, right = position_x * Kp)
+            if bbox = self.darknet_client.predict() is not None:
+                position_x = bbox.x
+                position_y = bbox.y
+            i += 1
+            if i == 1000:
+                self._logger.log("Could not center above bucket")
+                return 0
+        return 1
+            
+
     def drop_marker(self):
         '''
         Dropping marker at current position
         '''
         self._dropper.drop_marker()
+        
+
 
 
             
