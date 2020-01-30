@@ -12,7 +12,7 @@ class BucketTaskExecutor(ITaskExecutor):
     def __init__(self, control_dict: Movements,
                 sensors_dict, camera_client,
                 main_logger):
-        self._control = control_dict
+        self._control = control_dict['movements']
         self._dropper = control_dict['dropper']
         self._hydrophones = sensors_dict['hydrophones']
         self._logger = main_logger
@@ -100,7 +100,7 @@ class BucketTaskExecutor(ITaskExecutor):
                 angle_to_pinger = self._hydrophones._hydrophones.get_angle(freq)
                 i += 1
         if bbox:
-            center_rov(bbox)
+            center_rov(self._control, Bbox = bbox)
             self._logger.log("Buckets task found")
             return 1
         else:
@@ -109,7 +109,7 @@ class BucketTaskExecutor(ITaskExecutor):
                 self._control.rotate_angle(yaw = 20)
                 bbox = self.darknet_client.predict()
                 if bbox:
-                    center_rov(bbox)
+                    center_rov(self._control, Bbox = bbox)
                     self._logger.log("Buckets task found")
                     return 1
             self._logger.log("Searching buckets task failed")
