@@ -2,7 +2,7 @@ from tasks.task_executor_itf import ITaskExecutor
 from neural_networks.DarknetClient import DarknetClient
 from communication.rpi_broker.movements import Movements
 from utils.stopwatch import Stopwatch
-from structures.bounding_box import BoundingBox
+from utils.centering import center_rov
 from configs.config import get_config
 from time import sleep
 from definitions import IP_ADDRESS, DARKNET_PORT
@@ -13,7 +13,6 @@ class BucketTaskExecutor(ITaskExecutor):
                 sensors_dict, camera_client,
                 main_logger):
         self._control = control_dict
-        self._bounding_box = BoundingBox(0, 0, 0, 0)
         self._hydrophones = sensors_dict['hydrophones']
         self._logger = main_logger
         self.config = get_config("tasks")['buckets_task']
@@ -21,6 +20,7 @@ class BucketTaskExecutor(ITaskExecutor):
         self.PINGER_LOOP_COUNTER = self.config['search']['pinger_loop_counter']
         self.BLUE_LOOP_COUNTER = self.config['search']['blue_loop_counter']
         self.ANY_BUCKET_COUNTER = self.config['search']['any_bucket_counter']
+        self.SEARCHING_BUCKETS_FORWARD_TIME = self.config['search']['SEARCHING_BUCKETS_FORWARD_TIME']
         self._control.pid_turn_on()
         self._control.pid_set_depth(self.config['search']['max_depth'])
 
@@ -41,8 +41,9 @@ class BucketTaskExecutor(ITaskExecutor):
             self._logger.log("Finding buckets in progress")
             if stopwatch.time() >= self.MAX_TIME_SEC:
                 self._logger.log("Finding buckets time expired")
-                return -1
+                return 0
 
+        self.darknet_client.load_model("bucket")
         i = 0
         # THIS LOOP SHOULD FIND BUCKET WITH PINGER
         while i < self.PINGER_LOOP_COUNTER:
@@ -73,12 +74,48 @@ class BucketTaskExecutor(ITaskExecutor):
                 return 0
         
         self._logger.log("Finding buckets failed")
-        return -1
+        return 0
 
     def find_buckets(self):
         '''
         Looking for buckets firstly based on pinger, altenatively by vision system
         '''
+        '''
+        TO DO: uncomment loading model when its done
+        '''
+        #self.darknet_client.load_model('buckets_task')
+        freq = 45000 #Hardcoded for Singapore constant pinger freq
+        self._logger.log("Starting searching buckets task")
+        angle_to_pinger = self._hydrophones.get_angle(freq) 
+        if angle_to_pinger:
+            bbox = False
+            i = 0
+            while bbox is not True and i < 5:
+                self._control.rotate_angle(yaw = angle_to_pinger)
+                self._control.set_lin_velocity(front = 50)
+                sleep(self.SEARCHING_BUCKETS_FORWARD_TIME)
+                self._control.set_lin_velocity(front = 0)
+                bbox = self.darknet_client.predict()
+                angle_to_pinger = self._hydrophones._hydrophones.get_angle(freq)
+                i += 1
+        if bbox:
+            center_rov(bbox)
+            self._logger.log("Buckets task found")
+            return 1
+        else:
+            self._logger.log("Starting desparate algorythm")
+            for i in range(18):
+                self._control.rotate_angle(yaw = 20)
+                bbox = self.darknet_client.predict()
+                if bbox:
+                    center_rov(bbox)
+                    self._logger.log("Buckets task found")
+                    return 1
+            self._logger.log("Searching buckets task failed")
+            return 0
+
+
+            
 
     def find_pinger_bucket(self):
         '''
