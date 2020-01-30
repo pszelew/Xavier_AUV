@@ -82,7 +82,7 @@ class DarknetYoloModel:
         detections = []
 
         if len(results) == 0:
-            return detections
+            return None
 
         for result in results:
             detection = result[0].decode('utf-8')
