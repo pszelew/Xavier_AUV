@@ -180,6 +180,9 @@ class BucketTaskExecutor(ITaskExecutor):
         stopwatch = Stopwatch()
         stopwatch.start()
         while bbox = self.darknet_client.predict() is None and stopwatch.time() < self.MAX_TIME_SEC
+        if bbox is None:
+            self._logger.log("Could not locate bucket")
+            return 0
         position_x = bbox.x
         position_y = bbox.y
         Kp = 0.001
