@@ -23,9 +23,9 @@ class GateTaskExecutor(ITaskExecutor):
         # angle might be set differently in config.json
         self.number = 0
         self.path = []
-        self.darknet_client = DarknetClient(DARKNET_PORT, "http://"+IP_ADDRESS) # TODO - chnge in client to paste https
-        #is_model_loaded = self.darknet_client.load_model('coke')
-        #self._logger.log("Loding model: "+str(is_model_loaded))
+        self.darknet_client = DarknetClient() # TODO - chnge in client to paste https
+        is_model_loaded = self.darknet_client.load_model('coke')
+        self._logger.log("Loding model: "+str(is_model_loaded))
 
     ###Start the gate algorithm###
     def run(self):
@@ -69,7 +69,8 @@ class GateTaskExecutor(ITaskExecutor):
         if not result:
             self._logger.log("Empty bounding box")
         else:
-            self._logger.log(str(result))
+            self._logger.log("Num of bb: "+ str(len(result)))
+            self._logger.log(str(result[0]))
         while True:
             pass
             #if self.is_this_gate(img):
