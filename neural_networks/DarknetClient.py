@@ -74,7 +74,11 @@ class DarknetClient():
         req = requests.get(url=server_url)
         result = req.content
         result = pickle.loads(result)
+
         self.logger.log("Img predict")
+        if result:
+            self.logger.log(str(result[0].normalize(480,480)))
+
         return result
 
     def predict_with_image(self):

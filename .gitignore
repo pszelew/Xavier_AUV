@@ -114,3 +114,9 @@ venv.bak/
 
 # custom - tests
 *camera_test.png
+
+# models
+*names
+*data
+*weights
+*cfg
