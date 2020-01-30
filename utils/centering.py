@@ -1,7 +1,3 @@
-import movements_itf as movement
-
-
-move = movement.IMovements()
 previousFlarePosX = 0
 previousFlarePosY = 0
 errorX = 0
@@ -11,19 +7,19 @@ errorSumY = 0
 Ki = 2
 Kd = 3
 
-def center_rov(self, xPos = 0, yPos = 0, Bbox = None):
+def center_rov(move, xPos = 0, yPos = 0, Bbox = None):
     if Bbox:
         xPos = Bbox.x
         yPos = Bbox.y
         
-    if self.previousFlarePosX != 0 & self.previousFlarePosY != 0:
-        self.errorX = xPos - self.previousFlarePosX
-        self.errorY = yPos - self.previousFlarePosY
-        self.errorSumX += self.errorX
-        self.errorSumY += self.errorY
+    if previousFlarePosX != 0 & previousFlarePosY != 0:
+        errorX = xPos - previousFlarePosX
+        errorY = yPos - previousFlarePosY
+        errorSumX += errorX
+        errorSumY += errorY
 
-    self.previousFlarePosX = xPos
-    self.previousFlarePosY = yPos
+    previousFlarePosX = xPos
+    previousFlarePosY = yPos
 
-    self.move.move_distance(0, (-xPos * 10 + self.Ki * self.errorSumX + self.Kd * self.errorX),
-                            (-yPos * 10 + self.Ki * self.errorSumY + self.Kd * self.errorY))
+    move.move_distance(0, (-xPos * 10 + .Ki * .errorSumX + .Kd * .errorX),
+                            (-yPos * 10 + .Ki * .errorSumY + .Kd * .errorY))
