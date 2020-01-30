@@ -4,9 +4,10 @@ import pickle
 import cv2
 from logpy.LogPy import Logger
 from definitions import LOG_DIRECOTRY
+from definitions import IP_ADDRESS, CAMERA_SERVER_PORT
 
 class CameraClient:
-    def __init__(self, host="192.168.0.103", port=8888, retry_no=5, name_modifer = ""):
+    def __init__(self, host=IP_ADDRESS, port=CAMERA_SERVER_PORT, retry_no=5, name_modifer = ""):
         """
         Initialize Camera Client Class
         :param host: [String] Server host

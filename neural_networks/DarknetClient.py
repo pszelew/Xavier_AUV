@@ -5,13 +5,15 @@ import argparse as ap
 import cv2
 from logpy.LogPy import Logger
 from utils.project_managment import PROJECT_ROOT
-from definitions import LOG_DIRECOTRY
+from definitions import LOG_DIRECOTRY, DARKNET_PORT
+import os
+
 
 class DarknetClient():
     """
     Class for interacting witch python darknet server.
     """
-    def __init__(self, port=5000, url=f"http://localhost"):
+    def __init__(self, port=DARKNET_PORT, url= 'http://192.168.0.103'):#url=f"http://localhost"):
         """
         :param port: Port of running darknet server
         :param url: Url of running darknet server external eg: "http://192.168.0.104"
@@ -19,6 +21,7 @@ class DarknetClient():
         self.port = str(port)
         self.url = url
         self.logger = Logger(filename='darknet_client', title="Darknet_Client", directory=LOG_DIRECOTRY, logexists='append')
+        self.logger.log(url)
 
     def load_model(self, model_name, retries=3) -> bool:
         """
@@ -71,6 +74,7 @@ class DarknetClient():
         req = requests.get(url=server_url)
         result = req.content
         result = pickle.loads(result)
+        self.logger.log("Img predict")
         return result
 
     def predict_with_image(self):
@@ -120,25 +124,32 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    client = DarknetClient(port=args.port, url=args.url)
+    client = DarknetClient()
     start_time = time.time()
     x = 5 # displays the frame rate every 5 second
     counter = 0
     while True:
         response_time = time.time()
-        result = client.predict_with_image()
+        #result = client.predict_with_image()
+        result = client.predict()
         response_time = time.time()-response_time
-        frame = result[-1]
-        bbox = result[0]
-
-        if(len(result) > 1):
-            frame = cv2.rectangle(frame, bbox.p1, bbox.p2, (255, 0, 255))
-
+        print(result)
+        '''
+        if result is not []:
+            frame = result[-1]
+            bbox = result[0]
+        
+            if(len(result) > 1):
+                frame = cv2.rectangle(frame, bbox.p1, bbox.p2, (255, 0, 255))
+        
         cv2.imshow('image', frame)
         key = cv2.waitKey(10)  # pauses for 100 mili sec before fetching next image
         if key == 'q':  # if q is pressed, exit loop
             cv2.destroyAllWindows()
             break
+        
+        '''
+
         counter+=1
         if (time.time() - start_time) > x :
             print("\n____________________________\nFPS: ", counter / (time.time() - start_time),
@@ -146,3 +157,4 @@ if __name__ == "__main__":
                   "\ntime for getting response with prediction: ", response_time)
             counter = 0
             start_time = time.time()
+            print(result)

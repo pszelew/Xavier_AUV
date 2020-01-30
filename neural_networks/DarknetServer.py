@@ -10,11 +10,11 @@ from definitions import DARKNET_PORT, IP_ADDRESS, LOG_DIRECOTRY
 from logpy.LogPy import Logger
 
 if __name__ == "__main__":
-    logger = Logger(filename='darknet_server', title="Darknet_Server", directory=LOG_DIRECOTRY)
+    logger = Logger(filename='darknet_server', title="Darknet_Server", directory=LOG_DIRECOTRY, logexists='append')
 
     parser = ap.ArgumentParser(description="Darknet yolo server")
     #parser.add_argument("-p", '--port', default=5000, type=int, help="Port on which server will be run")
-    parser.add_argument("-m", '--model', required=True, type=str, help="Path to model folder, relative to project root")
+    #parser.add_argument("-m", '--model', required=True, type=str, help="Path to model folder, relative to project root")
     parser.add_argument("-t", '--threshold', default=0.5, type=float, help="Detection threshold (from 0 to 1)")
 
     args = parser.parse_args()
@@ -25,7 +25,8 @@ if __name__ == "__main__":
     model = DarknetYoloModel(model_path=f"{PROJECT_ROOT}/neural_networks/models",
                              threshold=args.threshold)
 
-    model.load(model_name='gate')
+    model.load(model_name='coke')
+    logger.log("Model loaded to server")
 
     predict_time = 0
 
@@ -51,6 +52,7 @@ if __name__ == "__main__":
     def predict():
         img = cam_client.frame
         start = time.time()
+        logger.log("Starting prediction")
         result = model.predict(img)
         global predict_time 
         predict_time = time.time()-start
@@ -90,5 +92,6 @@ if __name__ == "__main__":
         #  cam_client.change_camera
         # add return false if operation failsed 
         return 'true'
-
+    logger.log("Server host "+IP_ADDRESS)
     server.run(host=IP_ADDRESS, port=DARKNET_PORT)
+    logger.log("Server runs")
