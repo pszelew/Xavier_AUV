@@ -13,6 +13,7 @@ class BucketTaskExecutor(ITaskExecutor):
                 sensors_dict, camera_client,
                 main_logger):
         self._control = control_dict
+        self._dropper = control_dict['dropper']
         self._hydrophones = sensors_dict['hydrophones']
         self._logger = main_logger
         self.config = get_config("tasks")['buckets_task']
@@ -157,6 +158,7 @@ class BucketTaskExecutor(ITaskExecutor):
         '''
         Dropping marker at current position
         '''
+        self._dropper.drop_marker()
 
 
             
