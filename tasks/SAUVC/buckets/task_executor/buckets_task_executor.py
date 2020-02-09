@@ -58,7 +58,7 @@ class BucketTaskExecutor(ITaskExecutor):
                 i = self.PINGER_LOOP_COUNTER
                 self.drop_marker()
                 self._logger.log("Marker dropped")
-                return 1
+                return 'pinger'
             i += 1
         
         k = 0
@@ -68,7 +68,7 @@ class BucketTaskExecutor(ITaskExecutor):
                 k = self.BLUE_LOOP_COUNTER
                 self.drop_marker()
                 self._logger.log("Marker dropped")
-                return 1
+                return 'blue'
 
         l = 0
         while l < self.ANY_BUCKET_COUNTER:
@@ -77,7 +77,7 @@ class BucketTaskExecutor(ITaskExecutor):
                 l = self.ANY_BUCKET_COUNTER
                 self.drop_marker()
                 self._logger.log("Marker dropped")
-                return 1
+                return 'red'
         
         self._logger.log("Finding buckets failed")
         return 0
