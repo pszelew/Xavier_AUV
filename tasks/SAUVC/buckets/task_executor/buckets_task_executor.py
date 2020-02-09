@@ -11,7 +11,7 @@ class BucketTaskExecutor(ITaskExecutor):
 
     def __init__(self, control_dict: Movements,
                 sensors_dict, camera_client,
-                main_logger):
+                main_logger, bucket):       #bucket = 'blue' or 'red' or 'pinger'
         self._control = control_dict['movements']
         self._dropper = control_dict['dropper']
         self._hydrophones = sensors_dict['hydrophones']
@@ -98,7 +98,7 @@ class BucketTaskExecutor(ITaskExecutor):
                 sleep(self.SEARCHING_BUCKETS_FORWARD_TIME)
                 self._control.set_lin_velocity(front = 0)
                 bbox = self.darknet_client.predict()
-                angle_to_pinger = self._hydrophones._hydrophones.get_angle(freq)
+                angle_to_pinger = self._hydrophones._hydrophones.get_angle(self.PINGER_FREQ)
                 i += 1
         if bbox:
             center_rov(self._control, Bbox = bbox)
@@ -143,7 +143,7 @@ class BucketTaskExecutor(ITaskExecutor):
                 control = self._control
                 center_rov(control, Bbox = bbox)
                 self._control.set_lin_velocity(front = 20)
-                if center_a//bove_bucket():
+                if self.center_above_bucket():
                     return 1
                 else:
                     self._logger.log("Could not center above bucket")
@@ -167,11 +167,23 @@ class BucketTaskExecutor(ITaskExecutor):
         '''
         Finding exact position of random bucket
         '''
-        if bucket:
-            self.center_above_bucket(bucket)
-            return 1
-        else:
-            return 0
+        self._logger.log("Searching random bucket")
+        angle = 0
+        bbox = None
+        control = self._control
+        for i in range(18):
+            angle += i*20
+            bbox = self.darknet_client.predict()
+            if bbox:
+                center_rov(control, Bbox = bbox)
+                self._control.set_lin_velocity(front = 20)
+                if self.center_above_bucket():
+                    return 1
+                else:
+                    self._logger.log("Could not center above bucket")
+                    return 0
+            self._control.rotate_angle(yaw = 20)
+            sleep(2)
 
     def center_above_bucket(self):
         '''

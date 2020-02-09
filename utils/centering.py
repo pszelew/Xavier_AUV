@@ -35,3 +35,5 @@ def center_rov(move, xPos = 0, yPos = 0, Bbox = None, depth_sensor = None):
     if depth_sensor:
         current_depth = depth_sensor.get_depth()
         move.pid_set_depth(current_depth - Kp * yPos)
+    sleep(0.2)
+    move.set_lin_velocity(right = 0)
