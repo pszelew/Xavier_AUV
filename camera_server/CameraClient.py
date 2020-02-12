@@ -91,7 +91,14 @@ class CameraClient:
         frame = pickle.loads(frame_data, fix_imports=True, encoding="bytes")
         frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
         return frame
-
+    
+    def change_camera(self,id):
+        self.socket.send(("change_to:{}".format(id)).encode())
+        confirmation = self.socket.recv(4096).decode()
+        if confirmation == 'true':
+            return 'true'
+        else:
+            return 'false'
 
 def frame_preview(camera_client, exit_key='q'):
     """
