@@ -65,6 +65,11 @@ class CAMERAS:
     SIM_BOTTOM_CAM_ID = 1
     SIM_FRONT_CAM_1_ID = 0
 
+    # SERVER XAVIER CAMERAS
+    FRONT_CAMERA_DEVNAME = "/dev/camera_c922_1"
+    BOTTOM_CAMERA_DEVNAME = "/dev/camera_hdpc_1"
+
+    
 # GATE
 ANGLE_GATE = -23
 TIME_GATE_FRONT_FIRST = 48
