@@ -13,12 +13,13 @@ class DarknetClient():
     """
     Class for interacting witch python darknet server.
     """
-    def __init__(self, port=DARKNET_PORT, url= IP_ADDRESS):#url=f"http://localhost"):
+    def __init__(self, url= "http://192.168.0.103"):#url=f"http://localhost"):
         """
         :param port: Port of running darknet server
         :param url: Url of running darknet server external eg: "http://192.168.0.104"
         """
-        self.port = str(port)
+        with open('ports.txt','r') as f:
+            self.port = str(int(f.read())+2)
         self.url = url
         self.logger = Logger(filename='darknet_client', title="Darknet_Client", directory=LOG_DIRECOTRY, logexists='append')
         self.logger.log(url)

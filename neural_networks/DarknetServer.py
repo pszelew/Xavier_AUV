@@ -6,7 +6,7 @@ import argparse as ap
 from neural_networks.utils.DarknetYoloModel import DarknetYoloModel
 from camera_server.CameraClient import CameraClient
 from utils.project_managment import PROJECT_ROOT
-from definitions import DARKNET_PORT, IP_ADDRESS, LOG_DIRECOTRY
+from definitions import IP_ADDRESS, LOG_DIRECOTRY
 from logpy.LogPy import Logger
 
 if __name__ == "__main__":
@@ -92,5 +92,7 @@ if __name__ == "__main__":
         return cam_client.change_camera(cam)
         
     logger.log("Server host "+IP_ADDRESS)
-    server.run(host=IP_ADDRESS, port=DARKNET_PORT)
+    with open('ports.txt','r') as f:
+        Darknet_port = int(f.read())+2
+    server.run(host=IP_ADDRESS, port=Darknet_port)
     logger.log("Server runs")

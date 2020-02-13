@@ -2,20 +2,20 @@ import socket
 import cv2
 import struct
 import pickle
-import threading 
+import threading
 from logpy.LogPy import Logger
 import os
 from definitions import LOG_DIRECOTRY
-from definitions import CAMERA_SERVER_PORT
-from definitions.CAMERAS import FRONT_CAMERA_DEVNAME
-from definitions.CAMERAS import BOTTOM_CAMERA_DEVNAME
+#from definitions import CAMERA_SERVER_PORT
+from definitions import CAMERAS
 
 #opencv-python>=4.1.2.30
 # [BUGFIX] Socket binding error: [Errno 98] Address already in use
 # ->  Changing ports between 9999 and 8888 in create_socket() function and client.py may help
 
+
 class ServerXavier:
-    def __init__(self, host=str(os.system('hostname -I')), port=CAMERA_SERVER_PORT, black_and_white=False, retry_no=5):
+    def __init__(self, host=str(os.system('hostname -I')), black_and_white=False, retry_no=5):
         """
         Initialize server
         :param host: [String] host address
@@ -24,7 +24,8 @@ class ServerXavier:
         :param retry_no: [Int] Number of retries
         """
         self.host = host
-        self.port = port
+        with open('ports.txt','r') as f:
+            self.port = int(f.read())
         self.bw = black_and_white
         self.retryNo = retry_no
         # set logger file
@@ -32,21 +33,21 @@ class ServerXavier:
         self.logger.start()
 
         # start up camera
-        self.camerasDict = {"front": cv2.VideoCapture(CAMERAS.FRONT_CAMERA_DEVNAME),"bottom": cv2.VideoCapture(CAMERAS.BOTTOM_CAMERA_DEVNAME)}
-        self.cameraCapture = self.camerasDict["front"]
+
         front_camera_connected = False
         bottom_camera_connected = False
         try:
-            front_camera = cv2.VideoCapture(FRONT_CAMERA_DEVNAME)
+            front_camera = cv2.VideoCapture(CAMERAS.FRONT_CAMERA_DEVNAME)
             front_camera_connected = True
         except:
             self.logger.log("Front camera not connected")
         try:
-            bottom_camera = cv2.VideoCapture(BOTTOM_CAMERA_DEVNAME)
+            bottom_camera = cv2.VideoCapture(CAMERAS.BOTTOM_CAMERA_DEVNAME)
             bottom_camera_connected = True
         except:
             self.logger.log("Bottom camera not connected")
         if front_camera_connected and bottom_camera_connected:
+
             self.camerasDict = {"front": front_camera,"bottom": bottom_camera}
             self.cameraCapture = self.camerasDict["front"]
         elif front_cammera_connected:
@@ -54,11 +55,21 @@ class ServerXavier:
             self.cameraCapture = self.camerasDict["front"]
         elif bottom_camera_connected:
             self.camerasDict = {"bottom": bottom_camera}
+            self.camerasDict = {"front": front_camera,"bottom": bottom_camera}
+            self.cameraCapture = self.camerasDict["front"]
+        elif front_cammera_connected:
+            self.camerasDict = {"front": front_camera}
+            self.cameraCapture = self.camerasDict["front"]
+        elif bottom_camera_connected:
+            self.camerasDict = {"bottom": bottom_camera}
+
             self.cameraCapture = self.camerasDict["front"]
         else:
             self.print("No camera connected")
             self.logger.log("No camera connected")
- 
+
+
+
 
         if not self.__auto_retry(self.__create_socket()):
             self.logger.log(f"ERROR: Create socket failure")
@@ -87,8 +98,8 @@ class ServerXavier:
         """
         try:
             self.logger.log(f"Binding the Port {self.port}")
-
-            self.socket.bind((self.host, self.port))
+            #print(typ)
+            self.socket.bind((str(self.host), int(self.port)))
             self.socket.listen(5)
             return True
 
@@ -116,9 +127,12 @@ class ServerXavier:
         :return: None
         """
         conn, address = self.socket.accept()
+        print(type(conn),type(address))
         self.logger.log(f"Connection has been established! | {address[0]}:{address[1]}")
         threading.Thread(target=self.__handle_client, args=(conn,)).start()
-    
+
+
+
     def change_camera(self, id):
         if id in self.camerasDict.keys():
             self.cameraCapture = self.camerasDict[id]
@@ -181,7 +195,6 @@ class ServerXavier:
             return 0
         else:
             return 1
-
 
 if __name__ == "__main__":
     #print(socket.gethostbyname(socket.gethostname()))

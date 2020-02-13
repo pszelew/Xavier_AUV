@@ -1,5 +1,0 @@
-classes=1
-train=bramka/train.txt
-valid=bramka/test.txt
-names=yolo.names
-backup=backup/

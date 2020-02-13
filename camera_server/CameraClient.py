@@ -4,10 +4,10 @@ import pickle
 import cv2
 from logpy.LogPy import Logger
 from definitions import LOG_DIRECOTRY
-from definitions import IP_ADDRESS, CAMERA_SERVER_PORT
+from definitions import IP_ADDRESS#, CAMERA_SERVER_PORT
 
 class CameraClient:
-    def __init__(self, host=IP_ADDRESS, port=CAMERA_SERVER_PORT, retry_no=5, name_modifer = ""):
+    def __init__(self, host=IP_ADDRESS, retry_no=5, name_modifer = ""):
         """
         Initialize Camera Client Class
         :param host: [String] Server host
@@ -15,7 +15,9 @@ class CameraClient:
         :param retry_no: [Int] Number of retries
         """
         self.host = host
-        self.port = port
+        #self.port = port
+        with open('ports.txt','r') as f:
+            self.port = int(f.read())
         self.retryNo = retry_no
         # set logger file
         self.logger = Logger(filename='camera_client'+name_modifer, title="CameraClient", directory=LOG_DIRECOTRY, logexists='append')
