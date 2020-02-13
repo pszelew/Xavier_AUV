@@ -3,6 +3,7 @@ from tasks.task_executor_itf import ITaskExecutor
 from tasks.SAUVC.gate.task_executor.gate_task_executor import GateTaskExecutor as GateExecutor
 from tasks.SAUVC.buckets.task_executor.buckets_task_executor import BucketTaskExecutor
 from tasks.tests.coke_centering import CokeCenteringTest
+from tasks.tests.unity_test import UnityTest
 
 class TaskSchedululer(ITaskExecutor):
 
@@ -26,13 +27,16 @@ class TaskSchedululer(ITaskExecutor):
         """
         self.logger.log("Task scheduler is running")
 
-        coke_centering_test = CokeCenteringTest(self.control_dict,self.sensors_dict,
-                                                self.camera_client,self.logger)
-        coke_centering_test.run()
+        unity_test = UnityTest(self.control_dict,self.sensors_dict,self.camera_client,self.logger)
+        unity_test.run()
 
-        #gate_executor = GateExecutor(self.control_dict['movements'], self.sensors_dict,
-        #                             self.camera_client, self.logger)
-        #gate_executor.run()
+        #coke_centering_test = CokeCenteringTest(self.control_dict,self.sensors_dict,
+        #                                        self.camera_client,self.logger)
+        #coke_centering_test.run()
+
+        gate_executor = GateExecutor(self.control_dict['movements'], self.sensors_dict,
+                                     self.camera_client, self.logger)
+        gate_executor.run()
 
         #self.logger.log("Gate finshed")
 

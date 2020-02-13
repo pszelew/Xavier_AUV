@@ -24,7 +24,7 @@ class TASKS:
     CASKET = True
 
 class MAINDEF:
-    MODE = 'ROV4'  # 'SIMULATION' or 'ROV4' or 'ROV3'
+    MODE = 'SIMULATION'  # 'SIMULATION' or 'ROV4' or 'ROV3'
 
 
 class CAMERAS:

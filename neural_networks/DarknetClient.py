@@ -20,7 +20,7 @@ class DarknetClient():
         """
         self.port = str(port)
         self.url = url
-        self.logger = Logger(filename='darknet_client', title="Darknet_Client", directory=LOG_DIRECOTRY, logexists='append')
+        self.logger = Logger(filename='darknet_client', title="Darknet_Client", directory=LOG_DIRECOTRY, logexists='append', console=True)
         self.logger.log(url)
 
     def load_model(self, model_name, retries=3) -> bool:
