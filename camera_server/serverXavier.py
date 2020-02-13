@@ -7,7 +7,8 @@ from logpy.LogPy import Logger
 import os
 from definitions import LOG_DIRECOTRY
 from definitions import CAMERA_SERVER_PORT
-from definitions import CAMERAS
+from definitions.CAMERAS import FRONT_CAMERA_DEVNAME
+from definitions.CAMERAS import BOTTOM_CAMERA_DEVNAME
 
 #opencv-python>=4.1.2.30
 # [BUGFIX] Socket binding error: [Errno 98] Address already in use
@@ -29,9 +30,36 @@ class ServerXavier:
         # set logger file
         self.logger = Logger(filename='server_xavier', title="ServerXavier", directory=LOG_DIRECOTRY, logexists='append')
         self.logger.start()
+
         # start up camera
         self.camerasDict = {"front": cv2.VideoCapture(CAMERAS.FRONT_CAMERA_DEVNAME),"bottom": cv2.VideoCapture(CAMERAS.BOTTOM_CAMERA_DEVNAME)}
         self.cameraCapture = self.camerasDict["front"]
+        front_camera_connected = False
+        bottom_camera_connected = False
+        try:
+            front_camera = cv2.VideoCapture(FRONT_CAMERA_DEVNAME)
+            front_camera_connected = True
+        except:
+            self.logger.log("Front camera not connected")
+        try:
+            bottom_camera = cv2.VideoCapture(BOTTOM_CAMERA_DEVNAME)
+            bottom_camera_connected = True
+        except:
+            self.logger.log("Bottom camera not connected")
+        if front_camera_connected and bottom_camera_connected:
+            self.camerasDict = {"front": front_camera,"bottom": bottom_camera}
+            self.cameraCapture = self.camerasDict["front"]
+        elif front_cammera_connected:
+            self.camerasDict = {"front": front_camera}
+            self.cameraCapture = self.camerasDict["front"]
+        elif bottom_camera_connected:
+            self.camerasDict = {"bottom": bottom_camera}
+            self.cameraCapture = self.camerasDict["front"]
+        else:
+            self.print("No camera connected")
+            self.logger.log("No camera connected")
+ 
+
         if not self.__auto_retry(self.__create_socket()):
             self.logger.log(f"ERROR: Create socket failure")
             return
