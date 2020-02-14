@@ -12,5 +12,5 @@ sleep 2
 python3 -m neural_networks.DarknetServer &
 
 
-sleep 10 #&& python3 -m camera_server.saveCameraClient &
+sleep 51 #&& python3 -m camera_server.saveCameraClient &
 python3 main.py 

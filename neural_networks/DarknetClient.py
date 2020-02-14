@@ -5,7 +5,7 @@ import argparse as ap
 import cv2
 from logpy.LogPy import Logger
 from utils.project_managment import PROJECT_ROOT
-from definitions import LOG_DIRECOTRY, DARKNET_PORT
+from definitions import LOG_DIRECOTRY, DARKNET_PORT, IP_ADDRESS
 import os
 
 
@@ -13,7 +13,7 @@ class DarknetClient():
     """
     Class for interacting witch python darknet server.
     """
-    def __init__(self, port=DARKNET_PORT, url= 'http://192.168.0.103'):#url=f"http://localhost"):
+    def __init__(self, port=DARKNET_PORT, url= IP_ADDRESS):#url=f"http://localhost"):
         """
         :param port: Port of running darknet server
         :param url: Url of running darknet server external eg: "http://192.168.0.104"

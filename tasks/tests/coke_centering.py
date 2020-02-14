@@ -19,30 +19,31 @@ class CokeCenteringTest(ITaskExecutor):
         self._logger.log("Coke centering test started")
     
     def run(self):
-        self.darknet_client.load_model('coke')
+        #self.darknet_client.load_model('coke')
         self._logger.log("Coke model loaded")
         bbox = False
         while not bbox:
-            bbox = self.darknet_client.predict()[0].normalize(480, 480) #TODO
+            bbox = self.darknet_client.predict() #TODO
             sleep(0.1)
         self._logger.log("out of predicting loop")
-        #bbox.normalize()
-        position_x = bbox.x      #TO DO - returning bbox instead of list
-        position_y = bbox.y
+        bbox =bbox[0].normalize(480, 480)
+        position_x = bbox.xc      #TO DO - returning bbox instead of list
+        position_y = bbox.yc
 
         self._logger.log("poz: x="+str(position_x)+" y="+str(position_y))
 
-        while abs(position_x) > 0.2 and abs(position_y) > 0.2:
+        while abs(position_x) > 0.2 or abs(position_y) > 0.2:
             self._logger.log("in ceentring")
-            bbox = self.darknet_client.predict()[0].normalize(480, 480)
+            bbox = self.darknet_client.predict()
+            sleep(0.2)
             if bbox:
-                sleep(0.1)
-                #bbox.normalize()
-                position_x = bbox.x      #TO DO - returning bbox instead of list
-                position_y = bbox.y
+                bbox =bbox[0].normalize(480, 480)
+                #sleep(0.01)
+                position_x = bbox.xc      #TO DO - returning bbox instead of list
+                position_y = bbox.yc
                 self._logger.log("pos: x="+str(position_x)+" y="+str(position_y))
                 
-                center_rov(move = self._control,Bbox = bbox, depth_sensor = self.depth_sensor)
+                center_rov(move = self._control,Bbox = bbox, depth_sensor = self.depth_sensor,logger = self._logger)
 
 
     

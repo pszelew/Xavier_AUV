@@ -1,4 +1,5 @@
-classes=80
-train=fake
-valid=fake
-names=/home/nvidia/test_michal/Xavier_AUV/neural_networks/models/gate/yolo.names
+classes=1
+train=bramka/train.txt
+valid=bramka/test.txt
+names=yolo.names
+backup=backup/
