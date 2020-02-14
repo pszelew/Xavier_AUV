@@ -88,10 +88,9 @@ if __name__ == "__main__":
     def change_camera():
         cam = request.args.get('cam_name', default='front', type=str)
         logger.log(f"INFO: changing camera new cam id: {cam}")
-        # TODO implement method change camera in cam server
-        #  cam_client.change_camera
-        # add return false if operation failsed 
-        return 'true'
+        # camera change method returns 'true' if succed, 'false' otherwise
+        return cam_client.change_camera(cam)
+        
     logger.log("Server host "+IP_ADDRESS)
     server.run(host=IP_ADDRESS, port=DARKNET_PORT)
     logger.log("Server runs")

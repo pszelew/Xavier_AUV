@@ -7,13 +7,14 @@ from configs.config import get_config
 from time import sleep
 from definitions import IP_ADDRESS, DARKNET_PORT
 
-class BucketTaskExecutor(ITaskExecutor):
+class BucketGrabExecutor(ITaskExecutor):
 
     def __init__(self, control_dict: Movements,
                 sensors_dict, camera_client,
-                main_logger, bucket):       #bucket = 'blue' or 'red' or 'pinger'
+                main_logger, bucket):  #bucket = 'blue' or 'red' or 'pinger'
+        self.bucket = bucket
         self._control = control_dict['movements']
-        self._dropper = control_dict['dropper']
+        self._grabber = control_dict['dropper']
         self._hydrophones = sensors_dict['hydrophones']
         self._logger = main_logger
         self.config = get_config("tasks")['buckets_task']
@@ -29,10 +30,10 @@ class BucketTaskExecutor(ITaskExecutor):
 
         self.darknet_client = DarknetClient(DARKNET_PORT, IP_ADDRESS)
 
-        self._logger.log('Buckets: diving')
+        self._logger.log('BucketGrab: diving')
 
     def run(self):
-        self._logger.log("Buckets task exector started")
+        self._logger.log("Bucket grab task exector started")
 
         self.darknet_client.load_model("bucket")
         '''
@@ -52,35 +53,43 @@ class BucketTaskExecutor(ITaskExecutor):
         #self.darknet_client.load_model("bucket")
         i = 0
         # THIS LOOP SHOULD FIND BUCKET WITH PINGER
-        while i < self.PINGER_LOOP_COUNTER:
-            if self.find_pinger_bucket():
-                self._logger.log("Found pinger bucket")
-                i = self.PINGER_LOOP_COUNTER
-                self.drop_marker()
-                self._logger.log("Marker dropped")
-                return 'pinger'
-            i += 1
+        if self.bucket == 'pinger':
+            while i < self.PINGER_LOOP_COUNTER:
+                if self.find_pinger_bucket():
+                    self._logger.log("Found pinger bucket")
+                    i = self.PINGER_LOOP_COUNTER
+                    self.grab_marker()
+                    self._logger.log("Marker grabbed")
+                    return 1
+                i += 1
+            self._logger.log("Marker could not be grabbed")
+            return 0
         
-        k = 0
-        while k < self.BLUE_LOOP_COUNTER:
-            if self.find_blue_bucket():
-                self._logger.log("Found blue bucket")
-                k = self.BLUE_LOOP_COUNTER
-                self.drop_marker()
-                self._logger.log("Marker dropped")
-                return 'blue'
+        elif self.bucket == 'blue':
+            k = 0
+            while k < self.BLUE_LOOP_COUNTER:
+                if self.find_blue_bucket():
+                    self._logger.log("Found blue bucket")
+                    k = self.BLUE_LOOP_COUNTER
+                    self.grab_marker()
+                    self._logger.log("Marker grabbed")
+                    return 1
+                k += 1
+            self._logger.log("Marker could not be grabbed")
+            return 0
 
-        l = 0
-        while l < self.ANY_BUCKET_COUNTER:
-            if self.find_random_bucket():
-                self._logger.log("Found random bucket")
-                l = self.ANY_BUCKET_COUNTER
-                self.drop_marker()
-                self._logger.log("Marker dropped")
-                return 'red'
-        
-        self._logger.log("Finding buckets failed")
-        return 0
+        elif self.bucket == 'red':
+            l = 0
+            while l < self.ANY_BUCKET_COUNTER:
+                if self.find_random_bucket():
+                    self._logger.log("Found random bucket")
+                    l = self.ANY_BUCKET_COUNTER
+                    self.grab_marker()
+                    self._logger.log("Marker grabbed")
+                    return 1
+                l += 1
+            self._logger.log("Grabbing marker failed")
+            return 0
 
     def find_buckets(self):
         '''
@@ -157,14 +166,11 @@ class BucketTaskExecutor(ITaskExecutor):
         '''
         Finding exact position of blue color bucket
         '''
-        return 0
-        """
         if bucket:
             self.center_above_bucket(bucket)
             return 1
         else:
             return 0
-        """
 
     def find_random_bucket(self):
         '''
@@ -219,11 +225,11 @@ class BucketTaskExecutor(ITaskExecutor):
         return 1
             
 
-    def drop_marker(self):
+    def grab_marker(self):
         '''
         Dropping marker at current position
         '''
-        self._dropper.drop_marker()
+        self._grabber.grab_marker()
         
 
 

@@ -7,6 +7,7 @@ from logpy.LogPy import Logger
 import os
 from definitions import LOG_DIRECOTRY
 from definitions import CAMERA_SERVER_PORT
+from definitions import CAMERAS
 
 #opencv-python>=4.1.2.30
 # [BUGFIX] Socket binding error: [Errno 98] Address already in use
@@ -29,7 +30,8 @@ class ServerXavier:
         self.logger = Logger(filename='server_xavier', title="ServerXavier", directory=LOG_DIRECOTRY, logexists='append')
         self.logger.start()
         # start up camera
-        self.cameraCapture = cv2.VideoCapture(0)
+        self.camerasDict = {"front": cv2.VideoCapture(CAMERAS.FRONT_CAMERA_DEVNAME),"bottom": cv2.VideoCapture(CAMERAS.BOTTOM_CAMERA_DEVNAME)}
+        self.cameraCapture = self.camerasDict["front"]
         if not self.__auto_retry(self.__create_socket()):
             self.logger.log(f"ERROR: Create socket failure")
             return
@@ -88,7 +90,13 @@ class ServerXavier:
         conn, address = self.socket.accept()
         self.logger.log(f"Connection has been established! | {address[0]}:{address[1]}")
         threading.Thread(target=self.__handle_client, args=(conn,)).start()
-
+    
+    def change_camera(self, id):
+        if id in self.camerasDict.keys():
+            self.cameraCapture = self.camerasDict[id]
+            return True
+        else:
+            return False
     def __handle_client(self, conn):
         """
         Handle client in separate function
@@ -99,7 +107,13 @@ class ServerXavier:
             data = conn.recv(1024).decode()
             if not data:
                 break
-            conn.send(self.__frame(h_flip=True))
+            elif "change" in data:
+                if self.change_camera(data.split(':')[1]):
+                    conn.send('true'.encode())
+                else:
+                    conn.send('false'.decode())
+            else:
+                conn.send(self.__frame(h_flip=True))
         conn.close()
 
     def __frame(self, v_flip=False, h_flip=False):
