@@ -11,7 +11,9 @@
             "max_center_distance": 0.05,
             "max_time_sec": 40,
             "moving_avg_discount": 0.9,
-            "kp":0.01
+            "kp":0.01,
+            "ki":0.001,
+            "kd":0.001
         },
         "turn": {
             "type": "hardcoded",
