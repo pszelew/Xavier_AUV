@@ -5,10 +5,19 @@ import cv2
 from logpy.LogPy import Logger
 import time
 from datetime import date
+from definitions import LOG_DIRECOTRY, CAMERA_SERVER_PORT, IP_ADDRESS
 
+HOST = IP_ADDRESS
+PORT = CAMERA_SERVER_PORT
+
+FPS = 20
+WIDTH = 640
+HEIGHT = 480
+
+DEF_VIDEO_DIR ='../Videos/'
 
 class CameraClient:
-    def __init__(self, host="192.168.0.103", port=8888, retry_no=5):
+    def __init__(self, host=HOST, port=PORT, retry_no=5):
         """
         Initialize Camera Client Class
         :param host: [String] Server host
@@ -19,7 +28,8 @@ class CameraClient:
         self.port = port
         self.retryNo = retry_no
         # set logger file
-        self.logger = Logger(filename='cameraClient', title="CameraClient")
+        self.logger = Logger(filename='save_camera_client', title="Save Camera Client", directory=LOG_DIRECOTRY, logexists='append')
+        self.logger.start()
         if not self.__auto_retry(self.__create_socket()):
             self.logger.log(f"ERROR: Create socket failure")
             return
@@ -93,22 +103,24 @@ class CameraClient:
         return frame
 
 
-def recordVid(camera_client, exit_key='q'):
+def recordVid(camera_client, exit_key='q', show=False):
     """
     Get frame preview
     :param camera_client: [CameraClient] connected camera client to get frame
     :param exit_key: [Char] Key to exit preview
+    :param show: [Bool] if True - create preview
     :return:
     """
 
     current_date = date.today()
     t = time.localtime()
-    current_time = time.strftime("%H:%M:%S", t)
+    current_time = time.strftime("%H-%M-%S", t)
 
-    out = cv2.VideoWriter( f'videos/{current_date}_{current_time}.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 20, (640,480) )
+    out = cv2.VideoWriter( f'{DEF_VIDEO_DIR}{current_date}_{current_time}.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), FPS, (WIDTH,HEIGHT) )
 
     while True:
-        cv2.imshow(f'Press {exit_key} to exit', camera_client.frame)
+        if show:
+            cv2.imshow(f'Press {exit_key} to exit', camera_client.frame)
 
         out.write(camera_client.frame)
         if cv2.waitKey(1) & 0xFF == ord(exit_key):
@@ -117,4 +129,4 @@ def recordVid(camera_client, exit_key='q'):
 
 if __name__ == "__main__":
     camCl = CameraClient()
-    recordVid(camCl)
+    recordVid(camCl,show=False)

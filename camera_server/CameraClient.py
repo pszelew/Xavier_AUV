@@ -3,10 +3,11 @@ import struct
 import pickle
 import cv2
 from logpy.LogPy import Logger
-
+from definitions import LOG_DIRECOTRY
+from definitions import IP_ADDRESS, CAMERA_SERVER_PORT
 
 class CameraClient:
-    def __init__(self, host="192.168.0.103", port=8888, retry_no=5):
+    def __init__(self, host=IP_ADDRESS, port=CAMERA_SERVER_PORT, retry_no=5, name_modifer = ""):
         """
         Initialize Camera Client Class
         :param host: [String] Server host
@@ -17,7 +18,8 @@ class CameraClient:
         self.port = port
         self.retryNo = retry_no
         # set logger file
-        self.logger = Logger(filename='cameraClient', title="CameraClient")
+        self.logger = Logger(filename='camera_client'+name_modifer, title="CameraClient", directory=LOG_DIRECOTRY, logexists='append')
+        self.logger.start()
         if not self.__auto_retry(self.__create_socket()):
             self.logger.log(f"ERROR: Create socket failure")
             return
@@ -89,7 +91,14 @@ class CameraClient:
         frame = pickle.loads(frame_data, fix_imports=True, encoding="bytes")
         frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
         return frame
-
+    
+    def change_camera(self,id):
+        self.socket.send(("change_to:{}".format(id)).encode())
+        confirmation = self.socket.recv(4096).decode()
+        if confirmation == 'true':
+            return 'true'
+        else:
+            return 'false'
 
 def frame_preview(camera_client, exit_key='q'):
     """

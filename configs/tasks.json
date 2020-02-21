@@ -1,0 +1,71 @@
+{
+    "path_task": {
+        "search": {
+            "max_engine_power": 50,
+            "confidence_threshold": 0.9,
+            "max_time_sec": 999,
+            "moving_avg_discount": 0.9
+        },
+        "centering": {
+            "max_engine_power": 50,
+            "max_center_distance": 0.05,
+            "max_time_sec": 40,
+            "moving_avg_discount": 0.9,
+            "kp":0.01,
+            "ki":0.001,
+            "kd":0.001
+        },
+        "turn": {
+            "type": "hardcoded",
+            "hardcoded": {
+                "angles": [
+                    -45
+                ]
+            }
+        }
+    },
+    "gate_task": {
+        "search": {
+            "max_depth": 1,
+            "max_ang_speed": 50,
+            "confidence_threshold": 0.9,
+            "max_time_sec": 40,
+            "moving_avg_discount": 0.9
+        },
+        "centering": {
+            "max_engine_power": 50,
+            "max_center_distance": 0.05,
+            "max_time_sec": 40,
+            "moving_avg_discount": 0.9
+        },
+        "go": {
+            "max_engine_power": 10,
+            "go_time_seconds": 5
+        }
+    },
+    "buckets_task": {
+        "search": {
+            "max_depth": 1,
+            "max_ang_speed": 50,
+            "confidence_threshold": 0.9,
+            "max_time_sec": 40,
+            "moving_avg_discount": 0.9,
+            "pinger_loop_counter":3,
+            "blue_loop_counter":3,
+            "any_bucket_counter":3,
+            "SEARCHING_BUCKETS_FORWARD_TIME":3,
+            "PINGER_FREQ":45000,
+            "POSITION_THRESHOLD":50
+        },
+        "centering": {
+            "max_engine_power": 50,
+            "max_center_distance": 0.05,
+            "max_time_sec": 40,
+            "moving_avg_discount": 0.9
+        },
+        "go": {
+            "max_engine_power": 10,
+            "go_time_seconds": 5
+        }
+    }
+}
