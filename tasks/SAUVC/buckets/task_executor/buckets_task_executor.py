@@ -1,4 +1,5 @@
 from tasks.task_executor_itf import ITaskExecutor
+from tasks.SAUVC.buckets.task_executor.cv_locator import BasketDetector
 from neural_networks.DarknetClient import DarknetClient
 from communication.rpi_broker.movements import Movements
 from utils.stopwatch import Stopwatch
@@ -12,6 +13,7 @@ class BucketTaskExecutor(ITaskExecutor):
     def __init__(self, control_dict: Movements,
                 sensors_dict, camera_client,
                 main_logger, bucket):       #bucket = 'blue' or 'red' or 'pinger'
+        self._basket_detector = BasketDetector()
         self._control = control_dict['movements']
         self._dropper = control_dict['dropper']
         self._hydrophones = sensors_dict['hydrophones']
@@ -157,14 +159,25 @@ class BucketTaskExecutor(ITaskExecutor):
         '''
         Finding exact position of blue color bucket
         '''
-        return 0
-        """
-        if bucket:
-            self.center_above_bucket(bucket)
-            return 1
-        else:
-            return 0
-        """
+        self._logger.log("Searching blue bucket")
+        angle = 0
+        bbox = None
+        control = self._control
+        for i in range(18):
+            angle += i*20
+            bbox = self.darknet_client.predict_with_image()
+            img = bbox[1]
+            bbox = bbox[0].normalize(480,480)
+            if bbox and self._basket_detector.checkColor(img) == 'blue':
+                center_rov(control, Bbox = bbox)
+                self._control.set_lin_velocity(front = 20)
+                if self.center_above_bucket():
+                    return 1
+                else:
+                    self._logger.log("Could not center above bucket")
+                    return 0
+            self._control.rotate_angle(yaw = 20)
+            sleep(2)
 
     def find_random_bucket(self):
         '''
@@ -209,6 +222,7 @@ class BucketTaskExecutor(ITaskExecutor):
         while position_x > self.POSITION_THRESHOLD and position_y > self.POSITION_THRESHOLD:
             self._control.set_lin_velocity(front = position_y * Kp, right = position_x * Kp)
             bbox = self.darknet_client.predict()[0].normalize(480,480)
+            sleep(0.01)
             if bbox is not None:
                 position_x = bbox.x
                 position_y = bbox.y
