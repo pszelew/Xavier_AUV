@@ -24,7 +24,7 @@
             }
         }
     },
-    "gate_task": {
+    "navigation_task": {
         "search": {
             "max_depth": 1,
             "max_ang_speed": 50,
