@@ -26,7 +26,6 @@
     },
     "navigation_task": {
         "search": {
-            "max_depth": 1,
             "max_ang_speed": 50,
             "confidence_threshold": 0.9,
             "max_time_sec": 40,

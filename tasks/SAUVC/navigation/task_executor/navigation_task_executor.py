@@ -29,14 +29,14 @@ class GateTaskExecutor(ITaskExecutor):
 
     ###Start the gate algorithm###
     def run(self):
-        MAX_TIME_SEC = self.config['search']['max_time_sec'] #w configu trzeba zmienic bo na razie jest do samego gate
-        self._logger.log("Gate task executor started")
+        MAX_TIME_SEC = self.config['max_time_sec']  # w configu trzeba zmienic bo na razie jest do samego gate
+        self._logger.log("Navigation task executor started")
         self._control.pid_turn_on()
 
         stopwatch = Stopwatch()
         stopwatch.start()
 
-        if stopwatch.time() >= MAX_TIME_SEC:
+        if stopwatch >= MAX_TIME_SEC:
             self._logger.log("TIME EXPIRED GATE NOT FOUND")
             self._control.set_ang_velocity(0, 0, 0)
 
@@ -56,7 +56,7 @@ class GateTaskExecutor(ITaskExecutor):
         MAX_ANG_SPEED = config['max_ang_speed']
         MOVING_AVERAGE_DISCOUNT = config['moving_avg_discount']
         CONFIDENCE_THRESHOLD = config['confidence_threshold']
-
+        MAX_TIME_SEC = config['max_time_sec']
 
         self._control.set_ang_velocity(0, 0, MAX_ANG_SPEED)
 
@@ -71,8 +71,9 @@ class GateTaskExecutor(ITaskExecutor):
         else:
             self._logger.log("Num of bb: "+ str(len(result)))
             self._logger.log(str(result[0]))
-        while True:
-            pass
+        while stopwatch < MAX_TIME_SEC:
+            #img = self._front_camera.get_image()
+
             #if self.is_this_gate(img):
             # TODO: zlokalizuj bramkę
             # gate = {"x", "y", "angle"}
