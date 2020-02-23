@@ -67,5 +67,28 @@
             "max_engine_power": 10,
             "go_time_seconds": 5
         }
+    },
+    "qualification_task": {
+        "max_depth": 1,
+        "search": {
+            "mode": "mvg_avg",
+            "confidence_threshold": 0.9,
+            "max_time_sec": 40,
+            "moving_avg_discount": 0.9,
+            "number_of_samples": 15
+        },
+        "centering": {
+            "max_engine_power": 50,
+            "max_center_distance": 0.05,
+            "max_time_sec": 40,
+            "moving_avg_discount": 0.9
+        },
+        "go": {
+            "max_engine_power": 10,
+            "go_time_sec": 2
+        },
+        "end": {
+            "go_time_sec": 5
+        }
     }
 }
