@@ -11,9 +11,10 @@ from definitions import CAMERAS
 # from definitions.CAMERAS import FRONT_CAMERA_DEVNAME
 # from definitions.CAMERAS import BOTTOM_CAMERA_DEVNAME
 
-#opencv-python>=4.1.2.30
-# [BUGFIX] Socket binding error: [Errno 98] Address already in use
-# ->  Changing ports between 9999 and 8888 in create_socket() function and client.py may help
+
+#only useful when videoClient is connected
+VIDEO_PATH = '/home/jedrix/Documents/videoClient/videos/film.avi'
+
 
 class ServerXavier:
     def __init__(self, host=str(os.system('hostname -I')), port=CAMERA_SERVER_PORT, black_and_white=False, retry_no=5):
@@ -65,6 +66,9 @@ class ServerXavier:
             self.logger.log(f"ERROR: Bind socket failure")
             return
         self.logger.log(f"Init complete")
+
+        #get video from path
+        self.VIDEO = cv2.VideoCapture(VIDEO_PATH)
 
     def __create_socket(self):
         """
@@ -123,6 +127,7 @@ class ServerXavier:
             return True
         else:
             return False
+
     def __handle_client(self, conn):
         """
         Handle client in separate function
@@ -139,10 +144,13 @@ class ServerXavier:
                 else:
                     conn.send('false'.decode())
             elif "get_frame" in data:
-                conn.send(self.__frame(h_flip=True))
+                conn.send(self.__frame(source=self.cameraCapture, h_flip=True))
+            elif "get_video" in data:
+                if self.VIDEO.isOpened():
+                    conn.send(self.__frame(source=self.VIDEO))
         conn.close()
 
-    def __frame(self, v_flip=False, h_flip=False):
+    def __frame(self, source, v_flip=False, h_flip=False):
         """
         Get picture frame
         :param v_flip: [Bool] Is image flipped vertical
@@ -150,7 +158,7 @@ class ServerXavier:
         :return: frame
         """
         # Capture frame
-        ret, frame = self.cameraCapture.read()
+        ret, frame = source.read()
 
         # Handles the mirroring of the current frame
         frame = cv2.flip(frame, self.__flip(v_flip, h_flip))
