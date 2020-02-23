@@ -7,8 +7,9 @@ from logpy.LogPy import Logger
 import os
 from definitions import LOG_DIRECOTRY
 from definitions import CAMERA_SERVER_PORT
-from definitions.CAMERAS import FRONT_CAMERA_DEVNAME
-from definitions.CAMERAS import BOTTOM_CAMERA_DEVNAME
+from definitions import CAMERAS
+# from definitions.CAMERAS import FRONT_CAMERA_DEVNAME
+# from definitions.CAMERAS import BOTTOM_CAMERA_DEVNAME
 
 #opencv-python>=4.1.2.30
 # [BUGFIX] Socket binding error: [Errno 98] Address already in use
@@ -35,12 +36,12 @@ class ServerXavier:
         front_camera_connected = False
         bottom_camera_connected = False
         try:
-            front_camera = cv2.VideoCapture(FRONT_CAMERA_DEVNAME)
+            front_camera = cv2.VideoCapture(CAMERAS.FRONT_CAMERA_DEVNAME)
             front_camera_connected = True
         except:
             self.logger.log("Front camera not connected")
         try:
-            bottom_camera = cv2.VideoCapture(BOTTOM_CAMERA_DEVNAME)
+            bottom_camera = cv2.VideoCapture(CAMERAS.BOTTOM_CAMERA_DEVNAME)
             bottom_camera_connected = True
         except:
             self.logger.log("Bottom camera not connected")
@@ -116,7 +117,7 @@ class ServerXavier:
         self.logger.log(f"Connection has been established! | {address[0]}:{address[1]}")
         threading.Thread(target=self.__handle_client, args=(conn,)).start()
     
-    def change_camera(self, id)
+    def change_camera(self, id):
         if id in self.camerasDict.keys():
             self.cameraCapture = self.camerasDict[id]
             return True
@@ -133,11 +134,11 @@ class ServerXavier:
             if not data:
                 break
             elif "change" in data:
-                if self.change_camera(data.split(':')[1])
+                if self.change_camera(data.split(':')[1]):
                     conn.send('true'.encode())
                 else:
                     conn.send('false'.decode())
-            else:
+            elif "get_frame" in data:
                 conn.send(self.__frame(h_flip=True))
         conn.close()
 
