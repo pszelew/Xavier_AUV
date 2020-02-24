@@ -29,6 +29,8 @@ class CameraClient:
             self.logger.log(f"ERROR: Connect to server failure")
             return
 
+        self.VIDEO_PATH = input("Enter video's ABSOLUTE path >> ")
+
     def __create_socket(self):
         """
         Create socket for making connection possible
@@ -78,7 +80,7 @@ class CameraClient:
         """
         limit = struct.calcsize(">L")
         data = b""
-        self.socket.send("get_video".encode())
+        self.socket.send(f"get_video {self.VIDEO_PATH}".encode())
 
         while len(data) < limit:
             data += self.socket.recv(4096)
@@ -106,6 +108,7 @@ def frame_preview(camera_client, exit_key='q'):
         if cv2.waitKey(1) & 0xFF == ord(exit_key):
             cv2.destroyAllWindows()
             break
+
 
 
 if __name__ == "__main__":

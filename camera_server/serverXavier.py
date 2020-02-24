@@ -12,10 +12,6 @@ from definitions import CAMERAS
 # from definitions.CAMERAS import BOTTOM_CAMERA_DEVNAME
 
 
-#only useful when videoClient is connected
-VIDEO_PATH = 'ABSOLUTE_PATH'
-
-
 class ServerXavier:
     def __init__(self, host=str(os.system('hostname -I')), port=CAMERA_SERVER_PORT, black_and_white=False, retry_no=5):
         """
@@ -67,8 +63,10 @@ class ServerXavier:
             return
         self.logger.log(f"Init complete")
 
-        #get video from path
-        self.VIDEO = cv2.VideoCapture(VIDEO_PATH)
+        # variables for videoClient use
+        self.VIDEO_PATH = ''
+        self.VIDEO = None
+        self.VIDEO_FRAME_COUNT = 0
 
     def __create_socket(self):
         """
@@ -134,8 +132,11 @@ class ServerXavier:
         :param conn: Client connection data
         :return: None
         """
+        #counter for 'get_video' call
+        counter = 1
+
         while True:
-            data = conn.recv(1024).decode()
+            data = conn.recv(1024).decode().split()
             if not data:
                 break
             elif "change" in data:
@@ -146,8 +147,20 @@ class ServerXavier:
             elif "get_frame" in data:
                 conn.send(self.__frame(source=self.cameraCapture, h_flip=True))
             elif "get_video" in data:
-                if self.VIDEO.isOpened():
+                # set video variables
+                self.VIDEO_PATH = data[1]
+                if counter == 1:
+                    self.VIDEO = cv2.VideoCapture(self.VIDEO_PATH)
+                    self.VIDEO_FRAME_COUNT = self.VIDEO.get(7)
+
+                if counter < self.VIDEO_FRAME_COUNT:
                     conn.send(self.__frame(source=self.VIDEO))
+                    counter += 1
+                else:
+                    self.VIDEO.release()
+                    self.VIDEO = cv2.VideoCapture(self.VIDEO_PATH)
+                    conn.send(self.__frame(source=self.VIDEO))
+                    counter = 2
         conn.close()
 
     def __frame(self, source, v_flip=False, h_flip=False):
@@ -194,4 +207,5 @@ if __name__ == "__main__":
     serverXavier = ServerXavier()
     while True:
         serverXavier.socket_accept()
+
 
