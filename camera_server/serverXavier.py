@@ -13,7 +13,7 @@ from definitions import CAMERAS
 
 
 #only useful when videoClient is connected
-VIDEO_PATH = '/home/jedrix/Documents/videoClient/videos/film.avi'
+VIDEO_PATH = 'ABSOLUTE_PATH'
 
 
 class ServerXavier:
