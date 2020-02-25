@@ -132,11 +132,9 @@ class ServerXavier:
         :param conn: Client connection data
         :return: None
         """
-        #counter for 'get_video' call
         counter = 1
-
         while True:
-            data = conn.recv(1024).decode().split()
+            data = conn.recv(1024).decode()
             if not data:
                 break
             elif "change" in data:
@@ -148,8 +146,8 @@ class ServerXavier:
                 conn.send(self.__frame(source=self.cameraCapture, h_flip=True))
             elif "get_video" in data:
                 # set video variables
-                self.VIDEO_PATH = data[1]
                 if counter == 1:
+                    self.VIDEO_PATH = data.split()[1]
                     self.VIDEO = cv2.VideoCapture(self.VIDEO_PATH)
                     self.VIDEO_FRAME_COUNT = self.VIDEO.get(7)
 
