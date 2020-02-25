@@ -25,7 +25,7 @@ if __name__ == "__main__":
     model = DarknetYoloModel(model_path=f"{PROJECT_ROOT}/neural_networks/models",
                              threshold=args.threshold)
 
-    model.load(model_name='coke')
+    model.load(model_name='gate')
     logger.log("Model loaded to server")
 
     predict_time = 0
@@ -94,5 +94,6 @@ if __name__ == "__main__":
     logger.log("Server host "+IP_ADDRESS)
     with open('ports.txt','r') as f:
         Darknet_port = int(f.read())+2
+    print("Serwer darknet port",str(Darknet_port))
     server.run(host=IP_ADDRESS, port=Darknet_port)
     logger.log("Server runs")

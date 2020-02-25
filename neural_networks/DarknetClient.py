@@ -20,6 +20,8 @@ class DarknetClient():
         """
         with open('ports.txt','r') as f:
             self.port = str(int(f.read())+2)
+
+        print("Darknet client port",self.port)
         self.url = url
         self.logger = Logger(filename='darknet_client', title="Darknet_Client", directory=LOG_DIRECOTRY, logexists='append')
         self.logger.log(url)
@@ -135,11 +137,11 @@ if __name__ == "__main__":
     counter = 0
     while True:
         response_time = time.time()
-        #result = client.predict_with_image()
-        result = client.predict()
+        result = client.predict_with_image()
+        #result = client.predict()
         response_time = time.time()-response_time
         print(result)
-        '''
+        
         if result is not []:
             frame = result[-1]
             bbox = result[0]
@@ -153,7 +155,7 @@ if __name__ == "__main__":
             cv2.destroyAllWindows()
             break
         
-        '''
+        
 
         counter+=1
         if (time.time() - start_time) > x :

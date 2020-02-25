@@ -22,7 +22,7 @@ def center_rov(move, xPos = 0, yPos = 0, Bbox = None, depth_sensor = None,logger
 
     move.set_lin_velocity(right = xPos * Kp + error_integral * Ki + derivative * Kd )
     if logger:
-        logger.log("xPos: "+str(xPos))
+        logger.log("xPos: "+str(xPos)+' velocity set '+str(xPos * Kp + error_integral * Ki + derivative * Kd))
     if depth_sensor:
         current_depth = depth_sensor.get_depth()
         move.pid_set_depth(current_depth - Kp * yPos)
