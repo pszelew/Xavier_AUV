@@ -22,7 +22,7 @@ from communication.rpi_broker.dropper import Dropper
 #Task sceduller
 from tasks.tasks_scheduler import TaskSchedululer
 
-from definitions import MAINDEF, CAMERAS,IP_ADDRESS, CAMERA_SERVER_PORT, LOG_DIRECOTRY
+from definitions import MAINDEF, CAMERAS,IP_ADDRESS, LOG_DIRECOTRY
 
 
 class Main():
@@ -39,7 +39,7 @@ class Main():
         self.logger.start()
 
         # cameras 
-        self.camera_client = CameraClient(IP_ADDRESS, CAMERA_SERVER_PORT,name_modifer="_main")        
+        self.camera_client = CameraClient(IP_ADDRESS,name_modifer="_main")        
         self.logger.log("Cameras created")
 
         #communication

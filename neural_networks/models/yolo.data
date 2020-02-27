@@ -1,4 +1,4 @@
-classes=80
+classes=1
 train=fake
 valid=fake
-names=/home/nvidia/test_michal/Xavier_AUV/neural_networks/models/yolo.names
+names=/home/nvidia/Xavier_AUV/neural_networks/models/yolo.names
