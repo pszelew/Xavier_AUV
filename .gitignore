@@ -120,3 +120,8 @@ venv.bak/
 *data
 *weights
 *cfg
+*.weights
+
+.Trash-1000/files/ports.2.txt
+.Trash-1000/info/ports.2.txt.trashinfo
+.Trash-1000/info/ports.txt.trashinfo
