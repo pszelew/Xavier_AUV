@@ -24,13 +24,15 @@ class GateTaskExecutor(ITaskExecutor):
         self.movements.pid_turn_on()
         self._logger.log("Qualification task executor init done")
 
+
     ###Start the gate algorithm###
     def run(self):
         self._logger.log("Qualification task executor started")
 
         self.dive()
 
-        #self.darknet_client.load_model('gate')
+        #self.darknet_client.load_model('gate') # Loaded default in Darknet Server initialization
+
         self._logger.log("Gate model loaded")
 
         if not self.find_gate():
@@ -60,6 +62,7 @@ class GateTaskExecutor(ITaskExecutor):
         self._logger.log("started find gate loop")
 
         while stopwatch.time() < config['max_time_sec']:
+
             if MODE == "mvg_avg":
                 for i in range(config['number_of_samples']):
                     if self.is_this_gate():
@@ -83,8 +86,10 @@ class GateTaskExecutor(ITaskExecutor):
         CONFIDENCE_THRESHOLD = config['confidence_threshold']
 
         bbox = False
+
         bbox = self.darknet_client.predict()
         bbox = bbox[0].normalize(480, 480)
+
 
         if bbox:
             self.confidence = mvg_avg(1, self.confidence, MOVING_AVERAGE_DISCOUNT)
@@ -100,9 +105,11 @@ class GateTaskExecutor(ITaskExecutor):
     def dive(self):
         depth = self.config['max_depth']
         self._logger.log("Dive: setting depth")
+
         self.movements.pid_set_depth(depth)
         self._logger.log("Dive: holding depth")
         self.movements.pid_hold_depth()
+
 
     def center_on_gate(self):
         config = self.config['centering']
@@ -112,7 +119,9 @@ class GateTaskExecutor(ITaskExecutor):
         stopwatch = Stopwatch()
         stopwatch.start()
 
+
         while stopwatch.time() <= MAX_TIME_SEC:
+
             bbox = self.darknet_client.predict()[0].normalize(480, 480)
             if bbox.x <= MAX_CENTER_DISTANCE & bbox.y <= MAX_CENTER_DISTANCE:
                 self._logger.log("centered on gate successfully")

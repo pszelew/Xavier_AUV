@@ -6,8 +6,10 @@ import threading
 from logpy.LogPy import Logger
 import os
 from definitions import LOG_DIRECOTRY
-#from definitions import CAMERA_SERVER_PORT
+
 from definitions import CAMERAS
+from definitions.CAMERAS import FRONT_CAMERA_DEVNAME
+from definitions.CAMERAS import BOTTOM_CAMERA_DEVNAME
 
 #opencv-python>=4.1.2.30
 # [BUGFIX] Socket binding error: [Errno 98] Address already in use
@@ -130,9 +132,7 @@ class ServerXavier:
         print(type(conn),type(address))
         self.logger.log(f"Connection has been established! | {address[0]}:{address[1]}")
         threading.Thread(target=self.__handle_client, args=(conn,)).start()
-
-
-
+        
     def change_camera(self, id):
         if id in self.camerasDict.keys():
             self.cameraCapture = self.camerasDict[id]
@@ -154,7 +154,7 @@ class ServerXavier:
                     conn.send('true'.encode())
                 else:
                     conn.send('false'.decode())
-            else:
+            elif "get_frame" in data:
                 conn.send(self.__frame(h_flip=True))
         conn.close()
 

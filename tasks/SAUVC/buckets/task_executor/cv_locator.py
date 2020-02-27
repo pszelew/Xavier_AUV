@@ -129,6 +129,13 @@ class BasketDetector:
             image = self.prepareImageBlue(imageCloned)
             lines = detectCircle(image)
 
+        """
+        circle[0] - x value of basket centre (-1,1)
+        circle[1] - y value of basket centre (-1,1)
+        """
+        circle[0] = (circle[0] - 0.5 * image.shape[1])/(0.5 * image.shape[1])
+        circle[1] = (circle[1] - 0.5 * image.shape[0]) / (0.5 * image.shape[0])
+
         return circle[0], circle[1]
 
     def checkColor(self, image):

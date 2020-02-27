@@ -8,7 +8,7 @@ from time import sleep
 from definitions import IP_ADDRESS, DARKNET_PORT
 
 class CokeCenteringTest(ITaskExecutor):
-    def __init__(self,control_dict: Movements, sensors_dict,
+    def __init__(self, control_dict: Movements, sensors_dict,
                 camera_client, main_logger):
         self._control = control_dict['movements']
         self.depth_sensor = sensors_dict['depth']
