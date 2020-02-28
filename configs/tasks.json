@@ -24,6 +24,24 @@
             }
         }
     },
+    "navigation_task": {
+        "search": {
+            "max_ang_speed": 50,
+            "confidence_threshold": 0.9,
+            "max_time_sec": 40,
+            "moving_avg_discount": 0.9
+        },
+        "centering": {
+            "max_engine_power": 50,
+            "max_center_distance": 0.05,
+            "max_time_sec": 40,
+            "moving_avg_discount": 0.9
+        },
+        "go": {
+            "max_engine_power": 10,
+            "go_time_seconds": 5
+        }
+    },
     "gate_task": {
         "search": {
             "max_depth": 1.0,
@@ -66,29 +84,6 @@
         "go": {
             "max_engine_power": 10.0,
             "go_time_seconds": 5.0
-        }
-    },
-    "qualification_task": {
-        "max_depth": 1,
-        "search": {
-            "mode": "mvg_avg",
-            "confidence_threshold": 0.9,
-            "max_time_sec": 40,
-            "moving_avg_discount": 0.9,
-            "number_of_samples": 15
-        },
-        "centering": {
-            "max_engine_power": 50,
-            "max_center_distance": 0.05,
-            "max_time_sec": 40,
-            "moving_avg_discount": 0.9
-        },
-        "go": {
-            "max_engine_power": 10,
-            "go_time_sec": 2
-        },
-        "end": {
-            "go_time_sec": 5
         }
     },
     "qualification_task": {

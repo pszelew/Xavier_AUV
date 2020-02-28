@@ -18,7 +18,7 @@ class GateTaskExecutor(ITaskExecutor):
         self._control = contorl_dict
         self._bounding_box = BoundingBox(0, 0, 0, 0)
         self._logger = main_logger
-        self.config = get_config("tasks")['gate_task']
+        self.config = get_config("tasks")['navigation_task']
         # For which path we are taking angle. For each path, rotation
         # angle might be set differently in config.json
         self.number = 0
@@ -56,7 +56,7 @@ class GateTaskExecutor(ITaskExecutor):
         MAX_ANG_SPEED = config['max_ang_speed']
         MOVING_AVERAGE_DISCOUNT = config['moving_avg_discount']
         CONFIDENCE_THRESHOLD = config['confidence_threshold']
-
+        MAX_TIME_SEC = config['max_time_sec']
 
         self._control.set_ang_velocity(0, 0, MAX_ANG_SPEED)
 
@@ -71,13 +71,12 @@ class GateTaskExecutor(ITaskExecutor):
         else:
             self._logger.log("Num of bb: "+ str(len(result)))
             self._logger.log(str(result[0]))
-        while True:
-            pass
-            #if self.is_this_gate(img):
+        while stopwatch.time() < MAX_TIME_SEC:
+            if self.is_this_gate(img):
             # TODO: zlokalizuj bramkę
-            # gate = {"x", "y", "angle"}
+                gate = {"x", "y", "angle"}
             # TODO: zlokalizuj przeszkodę
-            # obstacle = "{"x", "y"}
+                obstacle = "{"x", "y"}
             # more info in create_path comment
             #    self.create_path(gate, obstacle)    #W trajektorii musi byc uwzgledniona przeszkoda funkcja wyszukujaca przeszkode is_this_obstacle(bounding_box, img):
             return True

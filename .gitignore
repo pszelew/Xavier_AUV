@@ -1,3 +1,5 @@
+#movies
+*.avi
 # PyCharm editor
 .idea
 

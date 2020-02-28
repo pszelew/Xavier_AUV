@@ -1,157 +1,203 @@
-from tasks.task_executor_itf import ITaskExecutor
+from tasks.task_executor_itf import ITaskExecutor, Cameras
 from communication.rpi_broker.movements import Movements
-from neural_networks.DarknetClient import DarknetClient
+from tasks.localization.locator.ml_solution.yolo_soln import YoloFlareLocator
 from utils.stopwatch import Stopwatch
-from configs.config import get_config
-from time import sleep
+from structures.bounding_box import BoundingBox
 from utils.signal_processing import mvg_avg
-from utils.centering import center_rov
+from utils.location_calculator import location_calculator
+from configs.config import get_config
+from utils.python_rest_subtask import PythonRESTSubtask
+from tasks.localization.locator.cv_locator import FlareDetector
+from time import sleep
+import cv2
+import math as m
 
 
 class GateTaskExecutor(ITaskExecutor):
 
     ###Initialization###
-    def __init__(self, control_dict, sensors_dict,
-                camera_client, main_logger):
+    def __init__(self, control_dict, sensors_dict, cameras_dict: Cameras, main_logger):
         self._control = control_dict
-        self.depth_sensor = sensors_dict['depth']
+        self._sensors = sensors_dict
+        self._front_camera = cameras_dict['front_cam1']
+        self._bounding_box = BoundingBox(0, 0, 0, 0)
         self._logger = main_logger
         self.movements = control_dict['movements']
-        self.darknet_client = DarknetClient()
-        self.config = get_config('tasks')['qualification_task']
+        self.config = get_config('tasks')['localization']
+        self.img_server = PythonRESTSubtask("utils/img_server.py", 6669)
+        self.img_server.start()
         self.confidence = 0
+        self.ahrs = self._sensors['ahrs']
+        self.hydrophones = self._sensors['hydrophones']
 
-        self.movements.pid_turn_on()
-        self._logger.log("Qualification task executor init done")
-
+        self.flare_position = None
 
     ###Start the gate algorithm###
     def run(self):
-        self._logger.log("Qualification task executor started")
+        self._logger.log("Localization task executor started")
+        self._control.pid_turn_on()
 
         self.dive()
 
-        #self.darknet_client.load_model('gate') # Loaded default in Darknet Server initialization
-
-        self._logger.log("Gate model loaded")
-
-        if not self.find_gate():
-            self._logger.log("gate not found. task failed - aborting")
-            return False
+        self._logger.log("starting localization task loop")
 
         while True:
-            if not self.center_on_gate():
-                self._logger.log("couldn't center on gate. task failed - aborting")
+            self.center_on_pinger()
+
+            if not self.find_flare():
+                self._logger.log("couldn't find flare - task failed, aborting")
+                return False
+            if not self.center_on_flare():
+                self._logger.log("couldn't center on flare - task failed, aborting")
                 return False
 
-            self.go_to_gate()
+            # if traveled whole distance to flare, checked if flare knocked
+            # else repeat loop
+            if self.go_to_flare():
+                if self.is_flare_knocked():
+                    self._logger.log("knocked flare - task finished successfully")
+                    return True
 
-            if self.is_gate_passed():
-                self.end_task()
-                self._logger.log("task succeeded!")
-                return True
+    def find_flare(self):
+        # TODO: obsługa wykrycia dwóch flar
 
-    def find_gate(self):
-        self._logger.log("finding the gate")
+        self._logger.log("finding the flare")
         config = self.config['search']
-        MAX_TIME_SEC = config['max_time_sec']
-        MODE = config['mode']
 
         stopwatch = Stopwatch()
         stopwatch.start()
-        self._logger.log("started find gate loop")
+        self._logger.log("started find flare loop")
 
-        while stopwatch.time() < config['max_time_sec']:
+        while stopwatch < config['max_time_sec']:
+            # sprawdza kilka razy, dla pewności
+            #   (no i żeby confidence się zgadzało, bo bez tego to nawet jak raz wykryje, to nie przejdzie -
+            #       - przy moving_avg_discount=0.9 musi wykryć 10 razy z rzędu
+            for i in range(config['number_of_samples']):
+                img = self._front_camera.get_image()
+                if self.is_this_flare(img):
+                    return True
+            self.movements.rotate_angle(0, 0, config['rotation_angle'])
 
-            if MODE == "mvg_avg":
-                for i in range(config['number_of_samples']):
-                    if self.is_this_gate():
-                        return True
-            elif MODE == "simple":
-                bbox = False
-                bbox = self.darknet_client.predict()[0].normalize(480, 480)
-                if not bbox:
-                    self._logger.log("gate not found")
-                    return False
-                self._logger.log("gate found")
-                return True
-            #self.movements.rotate_angle(0, 0, config['rotation_angle'])
-
-        self._logger.log("gate not found")
+        self._logger.log("flare not found")
         return False
 
-    def is_this_gate(self):
+    def is_this_flare(self, img):
         config = self.config['search']
         MOVING_AVERAGE_DISCOUNT = config['moving_avg_discount']
         CONFIDENCE_THRESHOLD = config['confidence_threshold']
 
-        bbox = False
+        bounding_box = YoloFlareLocator().get_flare_bounding_box(img)
+        #self.post_image(img, bounding_box)
 
-        bbox = self.darknet_client.predict()
-        bbox = bbox[0].normalize(480, 480)
-
-
-        if bbox:
+        if bounding_box is not None:
             self.confidence = mvg_avg(1, self.confidence, MOVING_AVERAGE_DISCOUNT)
-            self._logger.log("is_this_gate: something detected")
+            self._bounding_box.mvg_avg(bounding_box, 0.5, True)
+            self._logger.log("is_this_flare: something detected")
         else:
             self.confidence = mvg_avg(0, self.confidence, MOVING_AVERAGE_DISCOUNT)
 
         if self.confidence > CONFIDENCE_THRESHOLD:
-            self._logger.log("is_this_gate: gate found")
+            self._logger.log("is_this_flare: flare found")
             return True
-        return False
 
     def dive(self):
         depth = self.config['max_depth']
         self._logger.log("Dive: setting depth")
-
-        self.movements.pid_set_depth(depth)
+        self._control.pid_set_depth(depth)
         self._logger.log("Dive: holding depth")
-        self.movements.pid_hold_depth()
+        self._control.pid_hold_depth()
 
-
-    def center_on_gate(self):
+    def center_on_flare(self):
+        """
+        rotates in vertical axis so flare is in the middle of an image
+        TODO: obsługa dwóch flar
+        """
         config = self.config['centering']
+        flare_size = get_config("objects_size")["localization"]["flare"]["height"]
+
+        MAX_CENTER_ANGLE_DEG = config['max_center_angle_deg']
         MAX_TIME_SEC = config['max_time_sec']
-        MAX_CENTER_DISTANCE = config['max_center_distance']
 
         stopwatch = Stopwatch()
         stopwatch.start()
 
-
-        while stopwatch.time() <= MAX_TIME_SEC:
-
-            bbox = self.darknet_client.predict()[0].normalize(480, 480)
-            if bbox.x <= MAX_CENTER_DISTANCE & bbox.y <= MAX_CENTER_DISTANCE:
-                self._logger.log("centered on gate successfully")
+        while stopwatch <= MAX_TIME_SEC:
+            img = self._front_camera.get_image()
+            b_box, color = FlareDetector().findMiddlePoint(img)
+            self.flare_position = location_calculator(b_box, flare_size, "height")
+            angle = -m.degrees(m.atan2(self.flare_position['x'], self.flare_position['distance']))
+            if abs(angle) <= MAX_CENTER_ANGLE_DEG:
+                self._logger.log("centered on flare successfully")
                 return True
-            center_rov(move=self._control, Bbox=bbox, depth_sensor=self.depth_sensor)
-        self._logger.log("couldn't center on gate")
+            self.movements.rotate_angle(0, 0, angle)
+        self._logger.log("couldn't center on flare")
         return False
 
-    def go_to_gate(self):
-        self._logger.log("going to gate")
+    def go_to_flare(self):
+        """
+        moves distance to flare + a little more to knock it
+        :return: True - if managed to move distance in time
+                 False - if didn't manage to move distance in time
+        """
         config = self.config['go']
-        GO_TIME_SEC = config['go_time_sec']
-        MAX_ENGINE_POWER = config['max_engine_power']
+        MAX_TIME_SEC = config['max_time_sec']
 
-        self.movements.set_lin_velocity(MAX_ENGINE_POWER, 0, 0)
+        stopwatch = Stopwatch()
+        stopwatch.start()
 
-        sleep(GO_TIME_SEC)
+        self.movements.move_distance(self.flare_position['distance'] + self.config['go']['distance_to_add_m'], 0, 0)
 
-    def is_gate_passed(self):
-        if not self.find_gate():
-            self._logger.log("gate passed")
+        if stopwatch <= MAX_TIME_SEC:
+            self._logger.log("go_to_flare - traveled whole distance")
             return True
-        self._logger.log("gate not passed")
+        else:
+            self._logger.log("go_to_flare - didn't travel whole distance")
+            return False
+
+    def center_on_pinger(self):
+        """
+        rotates in vertical axis so pinger signal is in front
+        """
+        config = self.config['centering']
+        MAX_TIME_SEC = config['max_time_sec']
+        MAX_CENTER_ANGLE_DEG = config['max_center_angle_deg']
+
+        self._logger.log("centering on pinger")
+        stopwatch = Stopwatch()
+        stopwatch.start()
+
+        while stopwatch < MAX_TIME_SEC:
+            angle = self.hydrophones.get_angle()
+            if angle is None:
+                self._logger.log("no signal from hydrophones - locating pinger failed")
+                return False
+            if abs(angle) < MAX_CENTER_ANGLE_DEG:
+                self._logger.log("centered on pinger successfully")
+                return True
+            self.movements.rotate_angle(0, 0, angle)
+        self._logger.log("couldn't ceneter on pinger")
         return False
 
-    def end_task(self):
-        self._logger.log("qualification_task: ending task")
-        config = self.config['end']
-        GO_TIME_SEC = config['go_time_sec']
-        self._logger.log("moving forward for 5s - everything is fine")  # TODO: no to tak nie może być opisane xD
-        sleep(GO_TIME_SEC)
-        self.movements.set_lin_velocity(0, 0, 0)
-        self._logger.log("finished movement")
+    def is_flare_knocked(self):
+        """
+        if doesn't see the flare, then it's knocked
+        """
+        img = self._front_camera.get_image()
+        if YoloFlareLocator().get_flare_bounding_box(img) is None:
+            self._logger.log("can't see flare - flare knocked")
+            return True
+        self._logger.log("flare still visible - flare not knocked")
+        return False
+
+    def post_image(self, img, bounding_box=None):
+        """
+        wrzuca obraz wykrytej flary, nic ważnego
+        """
+        if bounding_box is not None:
+            self.img_server.post("set_img", img, unpickle_result=False)
+            bb = bounding_box.denormalize(img.shape[1], img.shape[0])
+            p1 = (int(bb.x1), int(bb.y1))
+            p2 = (int(bb.x2), int(bb.y2))
+            img = cv2.rectangle(img, p1, p2, (255,0,255))
+        self._logger.log("img posted")
+        self.img_server.post("set_img", img, unpickle_result=False)
