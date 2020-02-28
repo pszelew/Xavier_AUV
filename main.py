@@ -71,7 +71,7 @@ class Main():
                         'dropper': self.dropper}
 
         # task sheduler
-        self.task_scheduler = TaskSchedululer(self.control, self.sensors, self.camera_client, self.logger)
+        self.task_scheduler = TaskSchedululer(self.control, self.sensors, self.logger)
         self.logger.log("Task scheduler created")
 
     def run(self):

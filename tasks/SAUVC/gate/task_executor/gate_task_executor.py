@@ -14,7 +14,7 @@ from definitions import IP_ADDRESS, DARKNET_PORT
 class GateTaskExecutor(ITaskExecutor):
 
     ###Initialization###
-    def __init__(self, contorl_dict: Movements, sensors_dict, camera_client, main_logger):
+    def __init__(self, contorl_dict: Movements, sensors_dict, main_logger):
         self._control = contorl_dict
         self._bounding_box = BoundingBox(0, 0, 0, 0)
         self._logger = main_logger

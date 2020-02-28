@@ -10,7 +10,7 @@ from definitions import IP_ADDRESS, DARKNET_PORT
 class BucketGrabExecutor(ITaskExecutor):
 
     def __init__(self, control_dict: Movements,
-                sensors_dict, camera_client,
+                sensors_dict,
                 main_logger, bucket):  #bucket = 'blue' or 'red' or 'pinger'
         self.bucket = bucket
         self._control = control_dict['movements']
