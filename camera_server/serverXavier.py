@@ -49,14 +49,14 @@ class ServerXavier:
 
             self.camerasDict = {"front": front_camera,"bottom": bottom_camera}
             self.cameraCapture = self.camerasDict["front"]
-        elif front_cammera_connected:
+        elif front_camera_connected:
             self.camerasDict = {"front": front_camera}
             self.cameraCapture = self.camerasDict["front"]
         elif bottom_camera_connected:
             self.camerasDict = {"bottom": bottom_camera}
             self.camerasDict = {"front": front_camera,"bottom": bottom_camera}
             self.cameraCapture = self.camerasDict["front"]
-        elif front_cammera_connected:
+        elif front_camera_connected:
             self.camerasDict = {"front": front_camera}
             self.cameraCapture = self.camerasDict["front"]
         elif bottom_camera_connected:

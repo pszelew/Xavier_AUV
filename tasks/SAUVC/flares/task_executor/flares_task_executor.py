@@ -13,7 +13,7 @@ import cv2
 import math as m
 
 
-class GateTaskExecutor(ITaskExecutor):
+class FlareTaskExecutor(ITaskExecutor):
 
     ###Initialization###
     def __init__(self, control_dict, sensors_dict, cameras_dict: Cameras, main_logger):
