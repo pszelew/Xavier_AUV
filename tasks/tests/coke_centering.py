@@ -13,11 +13,11 @@ class CokeCenteringTest(ITaskExecutor):
         self._control = control_dict['movements']
         self.depth_sensor = sensors_dict['depth']
         self._logger = main_logger
-        self._control.pid_turn_on()
+        #self._control.pid_turn_on()
         self._control.pid_set_depth(0.3)
         self.darknet_client = DarknetClient()
         self._logger.log("Coke centering test started")
-        self.darknet_client.change_threshold(0.1)
+        self.darknet_client.change_threshold(0.5)
     
     def run(self):
         #self.darknet_client.load_model('coke')
@@ -33,7 +33,7 @@ class CokeCenteringTest(ITaskExecutor):
 
         self._logger.log("poz: x="+str(position_x)+" y="+str(position_y))
 
-        while abs(position_x) > 0.3 or abs(position_y) > 0.3:
+        while abs(position_x) > 0.05 or abs(position_y) > 0.05:
             self._logger.log("in ceentring")
             bbox = self.darknet_client.predict()
             sleep(0.2)

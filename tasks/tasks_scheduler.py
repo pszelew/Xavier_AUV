@@ -3,7 +3,7 @@ from tasks.task_executor_itf import ITaskExecutor
 #from tasks.SAUVC.gate.task_executor.gate_task_executor import GateTaskExecutor as GateExecutor
 from tasks.SAUVC.buckets.task_executor.buckets_task_executor import BucketTaskExecutor
 from tasks.tests.coke_centering import CokeCenteringTest
-from tasks.SAUVC.qualification.task_executor.qualification_task_executor import GateTaskExecutor as GateExecutor
+from tasks.SAUVC.qualification.qualification_task_executor import GateTaskExecutor as GateExecutor
 
 class TaskSchedululer(ITaskExecutor):
 
