@@ -1,4 +1,0 @@
-classes=1
-train=fake
-valid=fake
-names=/home/nvidia/Xavier_AUV/neural_networks/models/yolo.names

@@ -8,8 +8,8 @@ import os
 from definitions import LOG_DIRECOTRY
 
 from definitions import CAMERAS
-from definitions.CAMERAS import FRONT_CAMERA_DEVNAME
-from definitions.CAMERAS import BOTTOM_CAMERA_DEVNAME
+FRONT_CAMERA_DEVNAME = CAMERAS.FRONT_CAMERA_DEVNAME
+BOTTOM_CAMERA_DEVNAME = CAMERAS.BOTTOM_CAMERA_DEVNAME
 
 
 
@@ -30,6 +30,7 @@ class ServerXavier:
         # set logger file
         self.logger = Logger(filename='server_xavier', title="ServerXavier", directory=LOG_DIRECOTRY, logexists='append')
         self.logger.start()
+        self.logger.log('Camera server port (darknet port +2) '+str(self.port))
 
         # start up camera
 

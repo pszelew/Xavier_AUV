@@ -4,7 +4,7 @@ import pickle
 import os
 import argparse as ap
 from neural_networks.utils.DarknetYoloModel import DarknetYoloModel
-from camera_server.CameraClient import CameraClient
+from camera_server.cameraClient import CameraClient
 from utils.project_managment import PROJECT_ROOT
 from definitions import IP_ADDRESS, LOG_DIRECOTRY
 from logpy.LogPy import Logger

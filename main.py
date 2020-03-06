@@ -2,7 +2,7 @@ from logpy.LogPy import Logger
 import threading
 
 # Cameras
-from camera_server.CameraClient import CameraClient
+from camera_server.cameraClient import CameraClient
 # Task running
 
 # Sensors
@@ -59,7 +59,7 @@ class Main():
                         'distance': self.distance_sensor,
                         'hydrophones': self.hydrophones}
         #control
-        self.movements = Movements(self.rpi_reference)
+        self.movements = Movements(self.rpi_reference, self.logger)
         #self.torpedoes = Torpedoes(self.rpi_reference)
         #self.manipulator = Manipulator(self.rpi_reference)
         self.dropper = Dropper(self.rpi_reference)

@@ -3,21 +3,11 @@ import struct
 import pickle
 import cv2
 from logpy.LogPy import Logger
-import time
-from datetime import date
-from definitions import LOG_DIRECOTRY, IP_ADDRESS
-
-HOST = IP_ADDRESS
-#PORT = CAMERA_SERVER_PORT
-
-FPS = 20
-WIDTH = 640
-HEIGHT = 480
-
-DEF_VIDEO_DIR ='../Videos/'
+#from definitions import LOG_DIRECOTRY
+#from definitions import IP_ADDRESS#, CAMERA_SERVER_PORT
 
 class CameraClient:
-    def __init__(self, host=HOST, retry_no=5):
+    def __init__(self, host='192.168.0.103',port = 8989, retry_no=5, name_modifer = ""):
         """
         Initialize Camera Client Class
         :param host: [String] Server host
@@ -25,11 +15,13 @@ class CameraClient:
         :param retry_no: [Int] Number of retries
         """
         self.host = host
-        with open('ports.txt','r') as f:
-            self.port = int(f.read())
+        #self.port = port
+        #with open('ports.txt','r') as f:
+        #    self.port = int(f.read())
+        self.port = port
         self.retryNo = retry_no
         # set logger file
-        self.logger = Logger(filename='save_camera_client', title="Save Camera Client", directory=LOG_DIRECOTRY, logexists='append')
+        self.logger = Logger(filename='camera_client'+name_modifer, title="CameraClient", directory='', logexists='append')
         self.logger.start()
         if not self.__auto_retry(self.__create_socket()):
             self.logger.log(f"ERROR: Create socket failure")
@@ -102,32 +94,30 @@ class CameraClient:
         frame = pickle.loads(frame_data, fix_imports=True, encoding="bytes")
         frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
         return frame
+    
+    def change_camera(self,id):
+        self.socket.send(("change_to:{}".format(id)).encode())
+        confirmation = self.socket.recv(4096).decode()
+        if confirmation == 'true':
+            return 'true'
+        else:
+            return 'false'
 
-
-def recordVid(camera_client, exit_key='q', show=False):
+def frame_preview(camera_client, exit_key='q'):
     """
     Get frame preview
     :param camera_client: [CameraClient] connected camera client to get frame
     :param exit_key: [Char] Key to exit preview
-    :param show: [Bool] if True - create preview
     :return:
     """
-
-    current_date = date.today()
-    t = time.localtime()
-    current_time = time.strftime("%H-%M-%S", t)
-
-    out = cv2.VideoWriter( f'{DEF_VIDEO_DIR}{current_date}_{current_time}.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), FPS, (WIDTH,HEIGHT) )
-
     while True:
-        if show:
-            cv2.imshow(f'Press {exit_key} to exit', camera_client.frame)
-
-        out.write(camera_client.frame)
+        cv2.imshow(f'Press {exit_key} to exit', camera_client.frame)
         if cv2.waitKey(1) & 0xFF == ord(exit_key):
+            cv2.destroyAllWindows()
             break
 
 
 if __name__ == "__main__":
     camCl = CameraClient()
-    recordVid(camCl,show=False)
+    frame_preview(camCl)
+
