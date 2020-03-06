@@ -30,6 +30,7 @@ class ServerXavier:
         # set logger file
         self.logger = Logger(filename='server_xavier', title="ServerXavier", directory=LOG_DIRECOTRY, logexists='append')
         self.logger.start()
+        self.logger.log('Camera server port (darknet port +2) '+str(self.port))
 
         # start up camera
 
