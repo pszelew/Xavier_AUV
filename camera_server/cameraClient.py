@@ -28,6 +28,36 @@ class CameraClient:
         if not self.__auto_retry(self.__connect_to_server()):
             self.logger.log(f"ERROR: Connect to server failure")
             return
+        self.startTime = time.time()
+        self.availablePorts = []
+        self.activeThread = []
+        #print("Searching for ports")
+        while len(self.availablePorts) == 0:
+            self.__find_ports()
+        self.port = self.availablePorts[0]
+        if not self.__auto_retry(self.__connect_to_server()):
+            print(f"ERROR: Connect to server failure")
+            return
+
+    def __check_port(args,self,port):
+        tempsocket = socket.socket();
+        for i in range(port,port+5):
+            try:
+                #print(f"Connecting the port {self.host}:{port}:{i}")
+                tempsocket.connect((self.host, i))
+                #print(f"Found {self.host}:{port}")
+                self.availablePorts.append(port)
+                tempsocket.shutdown(2)
+            except socket.error as msg:
+                pass
+
+    def __find_ports(self):
+        activeThreads = []
+        for i in range(8000,10000,5):
+            thread = threading.Thread(target=self.__check_port,args=(self,i))
+            activeThreads.append(thread)
+            thread.start()
+        activeThreads[len(activeThreads)-1].join()
 
     def __create_socket(self):
         """
