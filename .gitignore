@@ -127,3 +127,6 @@ venv.bak/
 .Trash-1000/files/ports.2.txt
 .Trash-1000/info/ports.2.txt.trashinfo
 .Trash-1000/info/ports.txt.trashinfo
+
+# personal development scripts
+setup.ps1

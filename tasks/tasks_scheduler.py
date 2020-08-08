@@ -27,10 +27,8 @@ class TaskSchedululer(ITaskExecutor):
         """
         self.logger.log("Task scheduler is running")
 
-        '''
-        unity_test = UnityTest(self.control_dict,self.sensors_dict,self.camera_client,self.logger)
+        unity_test = UnityTest(self.control_dict, self.sensors_dict, self.logger)
         unity_test.run()
-        '''
                
         coke_centering_test = CokeCenteringTest(self.control_dict,self.sensors_dict,
                                                self.logger)

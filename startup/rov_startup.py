@@ -2,7 +2,7 @@ from logpy.LogPy import Logger
 import threading
 
 # Cameras
-from camera_server.CameraClient import CameraClient
+from camera_server.cameraClient import CameraClient
 # Task running
 
 # Sensors
