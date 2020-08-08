@@ -100,7 +100,7 @@ ANGLE2 = 10  +ANGLE_GATE +720
 
 
 IP_ADDRESS = '192.168.0.103'#str(os.system('hostname -I'))
-#CAMERA_SERVER_PORT = get_port()
+CAMERA_SERVER_PORT = get_port()
 
 DARKNET_PORT = 8818
 

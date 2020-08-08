@@ -13,6 +13,8 @@ class Communication:
 
     @property
     def frame(self):
+        # transcode image from unity's RGB to cv2's BGR format 
+        # to match interface's expectations
         return cv2.cvtColor(self.transdec.visual[0], cv2.COLOR_RGB2BGR)
 
     def reset(self):

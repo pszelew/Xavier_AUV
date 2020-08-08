@@ -5,6 +5,7 @@ import cv2
 from logpy.LogPy import Logger
 from definitions import LOG_DIRECOTRY
 from definitions import IP_ADDRESS#, CAMERA_SERVER_PORT
+from utils.testing import frame_preview
 
 class CameraClient:
     def __init__(self, host=IP_ADDRESS, retry_no=5, name_modifer = ""):
@@ -101,19 +102,6 @@ class CameraClient:
             return 'true'
         else:
             return 'false'
-
-def frame_preview(camera_client, exit_key='q'):
-    """
-    Get frame preview
-    :param camera_client: [CameraClient] connected camera client to get frame
-    :param exit_key: [Char] Key to exit preview
-    :return:
-    """
-    while True:
-        cv2.imshow(f'Press {exit_key} to exit', camera_client.frame)
-        if cv2.waitKey(1) & 0xFF == ord(exit_key):
-            cv2.destroyAllWindows()
-            break
 
 
 if __name__ == "__main__":

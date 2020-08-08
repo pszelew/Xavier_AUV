@@ -59,7 +59,7 @@ class RovStartup():
                         'distance': self.distance_sensor,
                         'hydrophones': self.hydrophones}
         #control
-        self.movements = Movements(self.rpi_reference)
+        self.movements = Movements(self.rpi_reference, logger)
         #self.torpedoes = Torpedoes(self.rpi_reference)
         #self.manipulator = Manipulator(self.rpi_reference)
         self.dropper = Dropper(self.rpi_reference)
