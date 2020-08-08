@@ -24,7 +24,8 @@ class DarknetNoServer():
         return True
 
     def change_camera(self,camera,retries = 3) -> bool:
-        pass
+        self.camera_client.change_camera(camera)
+        return True
 
     def predict(self):
         img = self.camera_client.frame
