@@ -30,7 +30,7 @@ class Main():
             self.startup=RovStartup(self.logger)
 
         # task sheduler
-        self.task_scheduler = TaskSchedululer(self.startup.control, self.startup.sensors, self.logger)
+        self.task_scheduler = TaskSchedululer(self.startup.control, self.startup.sensors, self.startup.vision, self.logger)
         self.logger.log("Task scheduler created")
 
     def run(self):

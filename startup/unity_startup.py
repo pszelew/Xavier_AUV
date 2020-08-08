@@ -3,6 +3,7 @@ import threading
 
 # Cameras
 from unity.camera_client import CameraClient
+from neural_networks.DarknetNoServer import DarknetNoServer 
 # Task running
 
 # Sensors
@@ -38,8 +39,12 @@ class UnityStartup():
         self.unity = Communication()
         self.unity_observation = self.unity.observation
         logger.log("unity was established")
-
+        
         self._camera_client = CameraClient(self.unity) 
+
+        #vision
+        self.vision=DarknetNoServer(self._camera_client)
+        logger.log("darknet vision created")
 
         # sensors
         self.ahrs = AHRS(self.unity_observation)

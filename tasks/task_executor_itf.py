@@ -16,13 +16,13 @@ class ITaskExecutor(metaclass=abc.ABCMeta):
     Every sub-algorithm also implement his interface
     """
     @abc.abstractmethod
-    def __init__(self, contorl_dict, sensors_dict, main_logger):
+    def __init__(self, contorl_dict, sensors_dict, vision, main_logger):
         """
         @param: movement_object is an object of Movements Class
             keywords: movements; torpedoes; manipulator;
         @param: sensors_dict is a dictionary of references to sensors objects
             keywords: ahrs; depth; hydrophones; distance;
-        @param: camera_client is CameraClient object
+        @param: vision is an object used to find objects using camera
         @param: main_logger is a reference to logger of main thread
         """
         pass

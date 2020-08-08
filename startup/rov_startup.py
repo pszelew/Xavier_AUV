@@ -3,6 +3,7 @@ import threading
 
 # Cameras
 from camera_server.cameraClient import CameraClient
+from neural_networks.DarknetClient import DarknetClient
 # Task running
 
 # Sensors
@@ -46,6 +47,10 @@ class RovStartup():
         self.communication = Communication()
         self.rpi_reference = self.communication.rpi_reference
         logger.log("communication was established")
+
+        #vision
+        self.vision=DarknetClient()
+        logger.log("darknet client used for vision created")
 
         # sensors
         self.ahrs = AHRS(self.rpi_reference)

@@ -9,22 +9,22 @@ from definitions import IP_ADDRESS, DARKNET_PORT
 
 class CokeCenteringTest(ITaskExecutor):
     def __init__(self, control_dict: Movements, sensors_dict,
-                main_logger):
+                 vision, main_logger):
         self._control = control_dict['movements']
         self.depth_sensor = sensors_dict['depth']
         self._logger = main_logger
         #self._control.pid_turn_on()
         self._control.pid_set_depth(0.3)
-        self.darknet_client = DarknetClient()
+        self.vision = vision
         self._logger.log("Coke centering test started")
-        self.darknet_client.change_threshold(0.5)
+        self.vision.change_threshold(0.5)
     
     def run(self):
         #self.darknet_client.load_model('coke')
         self._logger.log("model loaded")
         bbox = False
         while not bbox:
-            bbox = self.darknet_client.predict() #TODO
+            bbox = self.vision.predict() #TODO
             sleep(0.1)
         self._logger.log("out of predicting loop")
         bbox =bbox[0].normalize(480, 480)
@@ -35,7 +35,7 @@ class CokeCenteringTest(ITaskExecutor):
 
         while abs(position_x) > 0.05 or abs(position_y) > 0.05:
             self._logger.log("in ceentring")
-            bbox = self.darknet_client.predict()
+            bbox = self.vision.predict()
             sleep(0.2)
             if bbox:
                 bbox =bbox[0].normalize(480, 480)
