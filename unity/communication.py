@@ -36,8 +36,8 @@ class Communication:
     def set_vertical_movement(self, upward_speed):
         self.vector_action[2] = upward_speed
         
-    def set_yaw_movement(self, rigt_turn_speed):
-        self.vector_action[3] = rigt_turn_speed
+    def set_yaw_movement(self, right_turn_speed):
+        self.vector_action[3] = right_turn_speed
 
     def change_camera(self, camera:int):
         self.vector_action[4]=camera

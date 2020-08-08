@@ -7,10 +7,10 @@ import time
 
 def observation_to_bounding_box(observation):
     return BoundingBox(
-        observation['bounding_box_x'],
-        observation['bounding_box_y'],
-        observation['bounding_box_w'],
-        observation['bounding_box_h'],
+        observation['bounding_box_x']*480,
+        observation['bounding_box_y']*480,
+        observation['bounding_box_w']*480,
+        observation['bounding_box_h']*480,
         observation['bounding_box_p'])
 
 class UnityVision():
@@ -33,7 +33,7 @@ class UnityVision():
         :return: Response from darknet server. True if operation succeeded
         """
         
-        # TODO: Changing target in unity academy using text action.
+        self.unity_reference.choose_target(model_name)
 
         return True
 
@@ -42,7 +42,7 @@ class UnityVision():
         return True
 
     def predict(self):
-        return observation_to_bounding_box(self.unity_reference.get_observations())
+        return [observation_to_bounding_box(self.unity_reference.get_observations())]
 
     def change_threshold(self, threshold = 0.5, retries = 3) -> bool:
         return True

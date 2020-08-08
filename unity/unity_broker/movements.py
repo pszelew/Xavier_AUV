@@ -1,3 +1,4 @@
+import numpy as np
 """
 Module includes IMovements
 """
@@ -17,9 +18,12 @@ class Movements:
         @param: up int in range [-100,100], case negative value move down
         """
 
-        self.unity_reference.set_longitudal_movement(front/100)
-        self.unity_reference.set_lateral_movement(right/100)
-        self.unity_reference.set_vertical_movement(up/100)
+        def to_range(value):
+            return np.clip(value, -1, 1)
+
+        self.unity_reference.set_longitudal_movement(to_range(front/100))
+        self.unity_reference.set_lateral_movement(-to_range(right/100))
+        self.unity_reference.set_vertical_movement(to_range(up/100))
         self.unity_reference.next_step(num_of_steps)
 
     def set_ang_velocity(self, roll=0, pitch=0, yaw=0, num_of_steps: int=10):
