@@ -5,8 +5,15 @@ from neural_networks.utils.DarknetYoloModel import DarknetYoloModel
 import time
 
 class DarknetNoServer():
+    """
+    Class for interacting with darknet without running server.
+    """
     def __init__(self, camera_client, threshold=0.5):
-        self.logger = Logger(filename='darknet_client', title="Darknet_Client", directory=LOG_DIRECOTRY, logexists='append', console=True)
+        """
+        :param port: Port of running darknet server
+        :param camera_client: Instance of camera client which feeds model with images
+        """
+        self.logger = Logger(filename='darknet_no_server', title="Darknet_No_Server", directory=LOG_DIRECOTRY, logexists='append', console=True)
         self.model = DarknetYoloModel(model_path=f"{PROJECT_ROOT}/neural_networks/models",
                              threshold=threshold)
         self.camera_client=camera_client
@@ -14,7 +21,7 @@ class DarknetNoServer():
     
     def load_model(self, model_name, retries=3) -> bool:
         """
-        Sends a post request to darknet server, and load new model from memory
+        Loads new model from memory
         :param model_name: string with dir name that contains trained model
         :param retries: max retries before giving up
         :return: Response from darknet server. True if operation succeeded

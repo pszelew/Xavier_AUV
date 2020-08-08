@@ -24,8 +24,10 @@ class Main():
         self.logger.start()
 
         # startup
-        if MAINDEF.MODE=='SIMULATION':
-            self.startup=UnityStartup(self.logger)
+        if MAINDEF.MODE=='SIMULATION_NO_NN':
+            self.startup=UnityStartup(self.logger, False)
+        elif MAINDEF.MODE=='SIMULATION':
+            self.startup=UnityStartup(self.logger, True)
         else:
             self.startup=RovStartup(self.logger)
 

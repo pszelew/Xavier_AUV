@@ -3,7 +3,6 @@ import threading
 
 # Cameras
 from unity.camera_client import CameraClient
-from neural_networks.DarknetNoServer import DarknetNoServer 
 # Task running
 
 # Sensors
@@ -31,7 +30,7 @@ class UnityStartup():
     Creates object of all sensor types, packs their references into
     a list. Creates Communication thread.
     '''
-    def __init__(self, logger):
+    def __init__(self, logger, use_nn):
         '''
         Creates and stores references of all slave objects.
         '''        
@@ -41,10 +40,14 @@ class UnityStartup():
         logger.log("unity was established")
         
         self._camera_client = CameraClient(self.unity) 
-
-        #vision
-        self.vision=DarknetNoServer(self._camera_client)
-        logger.log("darknet vision created")
+        if use_nn:
+            from neural_networks.DarknetNoServer import DarknetNoServer 
+            self.vision=DarknetNoServer(self._camera_client)
+            logger.log("darknet vision created")
+        else:
+            from unity.unity_vision import UnityVision
+            self.vision=UnityVision(self.unity)
+            logger.log("vision is being faked by calculations inside of Unity")
 
         # sensors
         self.ahrs = AHRS(self.unity_observation)

@@ -12,7 +12,7 @@ class CameraClient:
         """
         Initialize Camera Client Class
         :param host: [String] Server host
-        :param port: [Int] Server port
+        :param unity_reference: reference to unity communication class
         :param retry_no: [Int] Number of retries
         """
         # set logger file
@@ -29,6 +29,10 @@ class CameraClient:
         frame = self.unity_reference.frame
         # data = data[msg_size:]
         return frame
+
+    def change_camera(self,camera):
+        self.unity_reference.change_camera(camera)
+        return True
 
 if __name__ == "__main__":
     # shows one frame from the simulation
