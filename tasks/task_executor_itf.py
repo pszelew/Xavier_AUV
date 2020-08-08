@@ -3,7 +3,7 @@ File contains interface for task executor
 """
 import  abc
 from typing import Dict
-from camera_server.CameraClient import CameraClient
+
 
 
 class ITaskExecutor(metaclass=abc.ABCMeta):
@@ -16,7 +16,7 @@ class ITaskExecutor(metaclass=abc.ABCMeta):
     Every sub-algorithm also implement his interface
     """
     @abc.abstractmethod
-    def __init__(self, contorl_dict, sensors_dict, camera_client: CameraClient, main_logger):
+    def __init__(self, contorl_dict, sensors_dict, main_logger):
         """
         @param: movement_object is an object of Movements Class
             keywords: movements; torpedoes; manipulator;

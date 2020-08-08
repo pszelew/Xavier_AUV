@@ -1,13 +1,14 @@
 from tasks.task_executor_itf import ITaskExecutor
 
-from tasks.SAUVC.gate.task_executor.gate_task_executor import GateTaskExecutor as GateExecutor
+#from tasks.SAUVC.gate.task_executor.gate_task_executor import GateTaskExecutor as GateExecutor
 from tasks.SAUVC.buckets.task_executor.buckets_task_executor import BucketTaskExecutor
 from tasks.tests.coke_centering import CokeCenteringTest
 from tasks.tests.unity_test import UnityTest
+from tasks.SAUVC.qualification.qualification_task_executor import GateTaskExecutor as GateExecutor
 
 class TaskSchedululer(ITaskExecutor):
 
-    def __init__(self, control_dict, sensors_dict, camera_client, main_logger):
+    def __init__(self, control_dict, sensors_dict, main_logger):
         """
         @param: movement_object is an object of Movements Class
             keywords: movements; torpedoes; manipulator;
@@ -18,7 +19,6 @@ class TaskSchedululer(ITaskExecutor):
         """
         self.control_dict = control_dict
         self.sensors_dict = sensors_dict
-        self.camera_client = camera_client
         self.logger = main_logger
 
     def run(self):
@@ -27,21 +27,24 @@ class TaskSchedululer(ITaskExecutor):
         """
         self.logger.log("Task scheduler is running")
 
+        '''
         unity_test = UnityTest(self.control_dict,self.sensors_dict,self.camera_client,self.logger)
         unity_test.run()
+        '''
+               
+        coke_centering_test = CokeCenteringTest(self.control_dict,self.sensors_dict,
+                                               self.logger)
+        coke_centering_test.run()
 
-        #coke_centering_test = CokeCenteringTest(self.control_dict,self.sensors_dict,
-        #                                        self.camera_client,self.logger)
-        #coke_centering_test.run()
-
-        gate_executor = GateExecutor(self.control_dict['movements'], self.sensors_dict,
-                                     self.camera_client, self.logger)
+        '''
+        gate_executor = GateExecutor(self.control_dict, self.sensors_dict,
+                                     self.logger)
         gate_executor.run()
-
+        '''
         #self.logger.log("Gate finshed")
 
         #bucket_executor = BucketTaskExecutor(self.control_dict['movements'], self.sensors_dict,
-        #                             self.camera_client, self.logger)
+        #                             self.logger)
         #bucket_executor.run()
-
+        
         self.logger.log("Scheduler finished")

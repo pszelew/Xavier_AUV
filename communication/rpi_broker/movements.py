@@ -6,8 +6,9 @@ class Movements:
     """
     Interfce for algorithm for accesing rpi Movement Class
     """
-    def __init__(self, rpi_reference):
+    def __init__(self, rpi_reference, logger):
         self.rpi_reference = rpi_reference
+        self.logger = logger
 
     def set_lin_velocity(self, front=0, right=0, up=0):
         """
@@ -16,6 +17,11 @@ class Movements:
         @param: right int in range [-100, 100], case negative value move down
         @param: up int in range [-100,100], case negative value move down
         """
+        if front == 0 and up == 0 and right ==0:
+            log = "Ser lin vel [-100, 100]: 0 zero"
+        else:
+            log = "Set lin vel [-100,100]; front: "+ str(front) + " right: "+str(right) + " up: " +str(up)
+        self.logger.log(log)
         self.rpi_reference.set_lin_velocity(front, right, up)
 
     def set_ang_velocity(self, roll=0, pitch=0, yaw=0):

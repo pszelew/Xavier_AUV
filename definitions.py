@@ -65,6 +65,22 @@ class CAMERAS:
     SIM_BOTTOM_CAM_ID = 1
     SIM_FRONT_CAM_1_ID = 0
 
+    # SERVER XAVIER CAMERAS
+    FRONT_CAMERA_DEVNAME = "/dev/camera_c922_1"
+    BOTTOM_CAMERA_DEVNAME = "/dev/camera_hdpc_1"
+
+
+def get_port():
+    """
+    Get random port at the start of exec
+    and write it to text file
+    """
+    port = random.randrange(8900, 9999, 1)
+    print(port)
+    with open('ports.txt', 'w') as f:
+        f.write(str(port))
+    return port
+            
 # GATE
 ANGLE_GATE = -23
 TIME_GATE_FRONT_FIRST = 48
@@ -82,10 +98,15 @@ ANGLE_CASCET = -6 + ANGLE_BUOYS  # TODO: Change 5 to real delta
 ANGLE1_5 = ANGLE_GATE + 720
 ANGLE2 = 10  +ANGLE_GATE +720
 
-IP_ADDRESS = '192.168.0.103'#str(os.system('hostname -I'))
-CAMERA_SERVER_PORT = 9005
 
-DARKNET_PORT = 8808
+IP_ADDRESS = '192.168.0.103'#str(os.system('hostname -I'))
+#CAMERA_SERVER_PORT = get_port()
+
+DARKNET_PORT = 8818
+
 
 LOG_DIRECOTRY = 'logs/'
+
+#if __name__ == '__main__':
+#   CAMERA_SERVER_PORT = get_port()
 

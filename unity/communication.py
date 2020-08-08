@@ -1,4 +1,5 @@
 from pytransdec import TransdecCommunication
+import cv2
 
 class Communication:
     def __init__(self):
@@ -12,7 +13,7 @@ class Communication:
 
     @property
     def frame(self):
-        return self.transdec.visual
+        return cv2.cvtColor(self.transdec.visual[0], cv2.COLOR_RGB2BGR)
 
     def reset(self):
         self.transdec.reset()

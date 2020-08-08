@@ -10,7 +10,7 @@ from definitions import IP_ADDRESS, DARKNET_PORT
 class BucketGrabExecutor(ITaskExecutor):
 
     def __init__(self, control_dict: Movements,
-                sensors_dict, camera_client,
+                sensors_dict,
                 main_logger, bucket):  #bucket = 'blue' or 'red' or 'pinger'
         self.bucket = bucket
         self._control = control_dict['movements']
@@ -106,7 +106,7 @@ class BucketGrabExecutor(ITaskExecutor):
                 self._control.set_lin_velocity(front = 50)
                 sleep(self.SEARCHING_BUCKETS_FORWARD_TIME)
                 self._control.set_lin_velocity(front = 0)
-                bbox = self.darknet_client.predict()
+                bbox = self.darknet_client.predict()[0].normalize(480,480)
                 angle_to_pinger = self._hydrophones._hydrophones.get_angle(self.PINGER_FREQ)
                 i += 1
         if bbox:
@@ -117,7 +117,7 @@ class BucketGrabExecutor(ITaskExecutor):
             self._logger.log("Starting desparate algorythm")
             for i in range(18):
                 self._control.rotate_angle(yaw = 20)
-                bbox = self.darknet_client.predict()
+                bbox = self.darknet_client.predict()[0].normalize(480,480)
                 if bbox:
                     center_rov(self._control, Bbox = bbox)
                     self._logger.log("Buckets task found")
@@ -141,7 +141,7 @@ class BucketGrabExecutor(ITaskExecutor):
             while bbox is None and i < 5:
                 self._control.rotate_angle(angle_to_pinger)
                 sleep(2)
-                bbox = self.darknet_client.predict()
+                bbox = self.darknet_client.predict()[0].normalize(480,480)
                 angle_to_pinger = self._hydrophones.get_angle(self.PINGER_FREQ)
                 i += 1
             if bbox is None:
@@ -182,7 +182,7 @@ class BucketGrabExecutor(ITaskExecutor):
         control = self._control
         for i in range(18):
             angle += i*20
-            bbox = self.darknet_client.predict()
+            bbox = self.darknet_client.predict()[0].normalize(480,480)
             if bbox:
                 center_rov(control, Bbox = bbox)
                 self._control.set_lin_velocity(front = 20)
@@ -201,9 +201,9 @@ class BucketGrabExecutor(ITaskExecutor):
         self.darknet_client.change_camera("bottom")
         stopwatch = Stopwatch()
         stopwatch.start()
-        bbox = self.darknet_client.predict()
+        bbox = self.darknet_client.predict()[0].normalize(480,480)
         while bbox is None and stopwatch.time() < self.MAX_TIME_SEC:
-            bbox = self.darknet_client.predict()
+            bbox = self.darknet_client.predict()[0].normalize(480,480)
             sleep(0.3)
         if bbox is None:
             self._logger.log("Could not locate bucket")
@@ -214,7 +214,7 @@ class BucketGrabExecutor(ITaskExecutor):
         i = 0
         while position_x > self.POSITION_THRESHOLD and position_y > self.POSITION_THRESHOLD:
             self._control.set_lin_velocity(front = position_y * Kp, right = position_x * Kp)
-            bbox = self.darknet_client.predict()
+            bbox = self.darknet_client.predict()[0].normalize(480,480)
             if bbox is not None:
                 position_x = bbox.x
                 position_y = bbox.y

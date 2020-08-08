@@ -4,9 +4,9 @@ import pickle
 import os
 import argparse as ap
 from neural_networks.utils.DarknetYoloModel import DarknetYoloModel
-from camera_server.CameraClient import CameraClient
+from camera_server.cameraClient import CameraClient
 from utils.project_managment import PROJECT_ROOT
-from definitions import DARKNET_PORT, IP_ADDRESS, LOG_DIRECOTRY
+from definitions import IP_ADDRESS, LOG_DIRECOTRY
 from logpy.LogPy import Logger
 
 if __name__ == "__main__":
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     model = DarknetYoloModel(model_path=f"{PROJECT_ROOT}/neural_networks/models",
                              threshold=args.threshold)
 
-    model.load(model_name='coke')
+    model.load(model_name='gate')
     logger.log("Model loaded to server")
 
     predict_time = 0
@@ -88,10 +88,12 @@ if __name__ == "__main__":
     def change_camera():
         cam = request.args.get('cam_name', default='front', type=str)
         logger.log(f"INFO: changing camera new cam id: {cam}")
-        # TODO implement method change camera in cam server
-        #  cam_client.change_camera
-        # add return false if operation failsed 
-        return 'true'
+        # camera change method returns 'true' if succed, 'false' otherwise
+        return cam_client.change_camera(cam)
+        
     logger.log("Server host "+IP_ADDRESS)
-    server.run(host=IP_ADDRESS, port=DARKNET_PORT)
+    with open('ports.txt','r') as f:
+        Darknet_port = int(f.read())+2
+    print("Serwer darknet port",str(Darknet_port))
+    server.run(host=IP_ADDRESS, port=Darknet_port)
     logger.log("Server runs")

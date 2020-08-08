@@ -5,7 +5,7 @@ import argparse as ap
 import cv2
 from logpy.LogPy import Logger
 from utils.project_managment import PROJECT_ROOT
-from definitions import LOG_DIRECOTRY, DARKNET_PORT
+from definitions import LOG_DIRECOTRY, DARKNET_PORT, IP_ADDRESS
 import os
 
 
@@ -13,12 +13,15 @@ class DarknetClient():
     """
     Class for interacting witch python darknet server.
     """
-    def __init__(self, port=DARKNET_PORT, url= 'http://192.168.0.103'):#url=f"http://localhost"):
+    def __init__(self, url= "http://192.168.0.103"):#url=f"http://localhost"):
         """
         :param port: Port of running darknet server
         :param url: Url of running darknet server external eg: "http://192.168.0.104"
         """
-        self.port = str(port)
+        with open('ports.txt','r') as f:
+            self.port = str(int(f.read())+2)
+
+        print("Darknet client port",self.port)
         self.url = url
         self.logger = Logger(filename='darknet_client', title="Darknet_Client", directory=LOG_DIRECOTRY, logexists='append', console=True)
         self.logger.log(url)
@@ -134,11 +137,11 @@ if __name__ == "__main__":
     counter = 0
     while True:
         response_time = time.time()
-        #result = client.predict_with_image()
-        result = client.predict()
+        result = client.predict_with_image()
+        #result = client.predict()
         response_time = time.time()-response_time
         print(result)
-        '''
+        
         if result is not []:
             frame = result[-1]
             bbox = result[0]
@@ -152,7 +155,7 @@ if __name__ == "__main__":
             cv2.destroyAllWindows()
             break
         
-        '''
+        
 
         counter+=1
         if (time.time() - start_time) > x :

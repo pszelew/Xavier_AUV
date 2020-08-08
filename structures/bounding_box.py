@@ -109,7 +109,7 @@ class BoundingBox:
             return BoundingBox(x, y, w, h, self.p, self.detected_item)
 
     def __str__(self):
-        return f"x={self.x}, y={self.y}, w={self.w}, h={self.h}, p={self.p}, item={self.detected_item}"
+        return f"x={self.xc}, y={self.yc}, w={self.w}, h={self.h}, p={self.p}, item={self.detected_item}"
 
     def mvg_avg(self, new_observation, discount_factor, inplace=False):
         """
