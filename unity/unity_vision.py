@@ -6,6 +6,11 @@ from structures.bounding_box import BoundingBox
 import time
 
 def observation_to_bounding_box(observation):
+    # this is the easiest way to signal
+    # that the target isn't in sight 
+    # without making deep changes in the library 
+    if observation['bounding_box_p']==0:
+        return None
     return BoundingBox(
         observation['bounding_box_x']*480,
         observation['bounding_box_y']*480,

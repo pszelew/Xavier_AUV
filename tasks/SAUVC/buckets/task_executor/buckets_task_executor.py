@@ -11,6 +11,7 @@ class BucketTaskExecutor(ITaskExecutor):
 
     def __init__(self, control_dict: Movements,
                 sensors_dict,
+                vision,
                 main_logger, bucket):       #bucket = 'blue' or 'red' or 'pinger'
         self._control = control_dict['movements']
         self._dropper = control_dict['dropper']
@@ -27,18 +28,18 @@ class BucketTaskExecutor(ITaskExecutor):
         self._control.pid_turn_on()
         self._control.pid_set_depth(self.config['search']['max_depth'])
 
-        self.darknet_client = DarknetClient(DARKNET_PORT, IP_ADDRESS)
+        self.vision = vision
 
         self._logger.log('Buckets: diving')
 
     def run(self):
         self._logger.log("Buckets task exector started")
 
-        self.darknet_client.load_model("bucket")
+        self.vision.load_model("bucket")
         '''
         TO DO: uncomment loading model when its done
         '''
-        #self.darknet_client.load_model('buckets_task')
+        #self.vision.load_model('buckets_task')
         stopwatch = Stopwatch()
         stopwatch.start()
 
@@ -49,7 +50,7 @@ class BucketTaskExecutor(ITaskExecutor):
                 self._logger.log("Finding buckets time expired")
                 return 0
 
-        #self.darknet_client.load_model("bucket")
+        #self.vision.load_model("bucket")
         i = 0
         # THIS LOOP SHOULD FIND BUCKET WITH PINGER
         while i < self.PINGER_LOOP_COUNTER:
@@ -69,7 +70,7 @@ class BucketTaskExecutor(ITaskExecutor):
                 self.drop_marker()
                 self._logger.log("Marker dropped")
                 return 'blue'
-
+            k += 1
         l = 0
         while l < self.ANY_BUCKET_COUNTER:
             if self.find_random_bucket():
@@ -78,6 +79,7 @@ class BucketTaskExecutor(ITaskExecutor):
                 self.drop_marker()
                 self._logger.log("Marker dropped")
                 return 'red'
+            l += 1
         
         self._logger.log("Finding buckets failed")
         return 0
@@ -89,15 +91,15 @@ class BucketTaskExecutor(ITaskExecutor):
         
         self._logger.log("Starting searching buckets task")
         angle_to_pinger = self._hydrophones.get_angle(self.PINGER_FREQ) 
+        bbox = False
         if angle_to_pinger:
-            bbox = False
             i = 0
             while bbox is not True and i < 5:
                 self._control.rotate_angle(yaw = angle_to_pinger)
                 self._control.set_lin_velocity(front = 50)
                 sleep(self.SEARCHING_BUCKETS_FORWARD_TIME)
                 self._control.set_lin_velocity(front = 0)
-                bbox = self.darknet_client.predict()[0].normalize(480,480)
+                bbox = self.vision.predict()[0].normalize(480,480)
                 angle_to_pinger = self._hydrophones._hydrophones.get_angle(self.PINGER_FREQ)
                 i += 1
         if bbox:
@@ -108,7 +110,7 @@ class BucketTaskExecutor(ITaskExecutor):
             self._logger.log("Starting desparate algorythm")
             for i in range(18):
                 self._control.rotate_angle(yaw = 20)
-                bbox = self.darknet_client.predict()[0].normalize(480,480)
+                bbox = self.vision.predict()[0].normalize(480,480)
                 if bbox:
                     center_rov(self._control, Bbox = bbox)
                     self._logger.log("Buckets task found")
@@ -132,7 +134,7 @@ class BucketTaskExecutor(ITaskExecutor):
             while bbox is None and i < 5:
                 self._control.rotate_angle(angle_to_pinger)
                 sleep(2)
-                bbox = self.darknet_client.predict()[0].normalize(480,480)
+                bbox = self.vision.predict()[0].normalize(480,480)
                 angle_to_pinger = self._hydrophones.get_angle(self.PINGER_FREQ)
                 i += 1
             if bbox is None:
@@ -176,8 +178,9 @@ class BucketTaskExecutor(ITaskExecutor):
         control = self._control
         for i in range(18):
             angle += i*20
-            bbox = self.darknet_client.predict()[0].normalize(480,480)
+            bbox = self.vision.predict()[0]
             if bbox:
+                bbox=bbox.normalize(480,480)
                 center_rov(control, Bbox = bbox)
                 self._control.set_lin_velocity(front = 20)
                 if self.center_above_bucket():
@@ -192,24 +195,26 @@ class BucketTaskExecutor(ITaskExecutor):
         '''
         centering above bucket
         '''
-        self.darknet_client.change_camera("bottom")
+        self.vision.change_camera("bottom")
         stopwatch = Stopwatch()
         stopwatch.start()
-        bbox = self.darknet_client.predict()[0].normalize(480,480)
+        bbox = self.vision.predict()[0]
         while bbox is None and stopwatch.time() < self.MAX_TIME_SEC:
-            bbox = self.darknet_client.predict()[0].normalize(480,480)
+            bbox = self.vision.predict()[0]
             sleep(0.3)
         if bbox is None:
             self._logger.log("Could not locate bucket")
             return 0
+        bbox=bbox.normalize(480,480)
         position_x = bbox.x
         position_y = bbox.y
         Kp = 0.001
         i = 0
         while position_x > self.POSITION_THRESHOLD and position_y > self.POSITION_THRESHOLD:
             self._control.set_lin_velocity(front = position_y * Kp, right = position_x * Kp)
-            bbox = self.darknet_client.predict()[0].normalize(480,480)
+            bbox = self.vision.predict()[0]
             if bbox is not None:
+                bbox=bbox.normalize(480,480)
                 position_x = bbox.x
                 position_y = bbox.y
             i += 1

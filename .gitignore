@@ -130,3 +130,5 @@ venv.bak/
 
 # personal development scripts
 setup.ps1
+kill.ps1
+run.ps1
