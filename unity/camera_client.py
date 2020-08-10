@@ -30,9 +30,8 @@ class CameraClient:
         # data = data[msg_size:]
         return frame
 
-    def change_camera(self,camera):
-        self.unity_reference.change_camera(camera)
-        return True
+    def change_camera(self,id):
+        self.unity_reference.change_camera(id)
 
 if __name__ == "__main__":
     # shows one frame from the simulation

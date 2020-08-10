@@ -1,6 +1,11 @@
 from pytransdec import TransdecCommunication
 import cv2
 
+CAMERAS = {
+    "front" : 0,
+    "bottom" : 1
+}
+
 class Communication:
     def __init__(self):
         self.transdec = TransdecCommunication()
@@ -39,8 +44,13 @@ class Communication:
     def set_yaw_movement(self, right_turn_speed):
         self.vector_action[3] = right_turn_speed
 
-    def change_camera(self, camera:int):
-        self.vector_action[4]=camera
+    def change_camera(self, id):
+        if id in CAMERAS:
+            self.vector_action[4]=CAMERAS[id]
+            return True
+        else:
+            return False
+        self.next_step()
 
     def close_gripper(self):
         self.vector_action[5] = 1

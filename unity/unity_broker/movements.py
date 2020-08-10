@@ -4,6 +4,9 @@ Module includes IMovements
 """
 
 class Movements:
+    # adjust these values for the simulation
+    DEGREES_PER_STEP=20
+    METERS_PER_STEP=1
     """
     Interfce for algorithm for accesing rpi Movement Class
     """
@@ -42,11 +45,19 @@ class Movements:
         @param: front float in range [-10, 10], case negative value move back
         @param: right float in range [-10, 10], case negative value move down
         @param: up float in range [-10,10], case negative value move down
-
-        Not shure if it is going to work correctly
         """
-        self.set_lin_velocity(front, right, up)
+        # this implementation isn't precise because it uses rotation speed
+        # but I don't know how much precision is available in a real environment
+        # and if it makes sense to base the algorithms on it
 
+        # move in each axis according to speed and then reset the linear velocity
+        if front!=0: # settings step as zero causes one step to be performed anyways unfortunately
+            self.set_lin_velocity(100*np.sign(front), 0, 0, int(front/self.METERS_PER_STEP))
+        if right!=0:
+            self.set_lin_velocity(0, 100*np.sign(right), 0, int(right/self.DEGREES_PER_STEP))
+        if up!=0:
+            self.set_lin_velocity(0, 0, 100*np.sign(up), int(up/self.DEGREES_PER_STEP))
+        self.set_lin_velocity(0, 0, 0)
 
     def rotate_angle(self, roll=0.0, pitch=0.0, yaw=0.0):
         """
@@ -55,7 +66,18 @@ class Movements:
         @param: pitch float in range [-360, 360], case negative - reverse direction
         @param: yaw flaot in range [-360, 360], case negative - reverse direction
         """
-        self.set_ang_velocity(roll, pitch, yaw)
+        # this implementation isn't precise because it uses rotation speed
+        # but I don't know how much precision is available in a real environment
+        # and if it makes sense to base the algorithms on it
+
+        # move in each axis according to speed and then reset the angular velocity
+        if roll!=0:
+            self.set_ang_velocity(100*np.sign(roll), 0, 0, int(roll/self.DEGREES_PER_STEP))
+        if pitch!=0:  
+            self.set_ang_velocity(0, 100*np.sign(pitch), 0, int(pitch/self.DEGREES_PER_STEP))
+        if yaw!=0:
+            self.set_ang_velocity(0, 0, 100*np.sign(yaw), int(yaw/self.DEGREES_PER_STEP))
+        self.set_ang_velocity(0, 0, 0)
         
     def pid_turn_on(self):
         """
@@ -74,6 +96,7 @@ class Movements:
         Set the current depth as the default depth
         Function DOESN'T activate pid, use pid_turn_on additionally
         """
+        # in the current simulation depth is kept on the same level by default
         pass
 
     def pid_set_depth(self, depth):

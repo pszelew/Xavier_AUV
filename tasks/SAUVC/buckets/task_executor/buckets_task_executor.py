@@ -180,6 +180,7 @@ class BucketTaskExecutor(ITaskExecutor):
             angle += i*20
             bbox = self.vision.predict()[0]
             if bbox:
+                self._logger.log("Found a bucket")
                 bbox=bbox.normalize(480,480)
                 center_rov(control, Bbox = bbox)
                 self._control.set_lin_velocity(front = 20)
@@ -195,6 +196,7 @@ class BucketTaskExecutor(ITaskExecutor):
         '''
         centering above bucket
         '''
+        self._logger.log("Centering above bucket")
         self.vision.change_camera("bottom")
         stopwatch = Stopwatch()
         stopwatch.start()
