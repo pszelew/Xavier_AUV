@@ -61,7 +61,7 @@ class UnityStartup():
                         'distance': self.distance_sensor,
                         'hydrophones': self.hydrophones}
         #control
-        self.movements = Movements(self.unity)
+        self.movements = Movements(self.unity, self.depth_sensor)
         self.torpedoes = Torpedoes(self.unity)
         self.manipulator = Manipulator(self.unity)
         self.dropper = Dropper(self.unity)

@@ -10,8 +10,9 @@ class Movements:
     """
     Interfce for algorithm for accesing rpi Movement Class
     """
-    def __init__(self, unity_reference):
+    def __init__(self, unity_reference, depth_sensor):
         self.unity_reference = unity_reference
+        self.depth_sensor = depth_sensor
 
     def set_lin_velocity(self, front=0, right=0, up=0, num_of_steps: int=10):
         """
@@ -83,12 +84,14 @@ class Movements:
         """
         Turn on PID
         """
+        # same as with pid_hold_depth
         pass
 
     def pid_turn_off(self):
         """
         Turn off PID
         """
+        # same as with pid_hold_depth
         pass
 
     def pid_hold_depth(self):
@@ -104,13 +107,20 @@ class Movements:
         Set depth, function DOESN'T activate pid, use pid_turn_on additionally
         :param: depth - float - target depth for PID
         """
-        pass
+        error=0.3
+        current_depth=self.depth_sensor.get_depth()
+        while np.abs(current_depth-depth)>error:
+            if current_depth<depth:
+                self.set_lin_velocity(0, 0, 100)
+            else:
+                self.set_lin_velocity(0, 0, -100)
+            current_depth=self.depth_sensor.get_depth()
 
     def pid_yaw_turn_on(self):
-        pass
+        raise NotImplementedError()
 
     def pid_yaw_turn_off(self):
-        pass
+        raise NotImplementedError()
 
     def pid_set_yaw(self, yaw):
-        pass
+        raise NotImplementedError()
