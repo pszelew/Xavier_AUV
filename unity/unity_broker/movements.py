@@ -5,11 +5,12 @@ Module includes IMovements
 """
 
 class Movements:
-    # adjust these values for the simulation
-    DEGREES_PER_STEP=20
-    METERS_PER_STEP=1
+    # adjust this values for the simulation
+    # by setting the angular roll velocity for one step
+    # and checking how much the ROV position changed 
+    METERS_PER_STEP=0.01
     """
-    Interfce for algorithm for accesing rpi Movement Class
+    Interface for controlling ROV movement in simulation
     """
     def __init__(self, unity_reference, depth_sensor):
         self.unity_reference = unity_reference
@@ -48,51 +49,64 @@ class Movements:
         @param: right float in range [-10, 10], case negative value move down
         @param: up float in range [-10,10], case negative value move down
         """
-        # this implementation isn't precise because it uses rotation speed
+        # this implementation isn't precise because it uses speed
         # but I don't know how much precision is available in a real environment
         # and if it makes sense to base the algorithms on it
 
         # move in each axis according to speed and then reset the linear velocity
-        if front!=0: # settings step as zero causes one step to be performed anyways unfortunately
-            self.set_lin_velocity(100*np.sign(front), 0, 0, int(front/self.METERS_PER_STEP))
-        if right!=0:
-            self.set_lin_velocity(0, 100*np.sign(right), 0, int(right/self.DEGREES_PER_STEP))
-        if up!=0:
-            self.set_lin_velocity(0, 0, 100*np.sign(up), int(up/self.DEGREES_PER_STEP))
+        self.set_lin_velocity(100*np.sign(front), 0, 0, int(front/self.METERS_PER_STEP))
+        self.set_lin_velocity(0, 100*np.sign(right), 0, int(right/self.METERS_PER_STEP))
+        self.set_lin_velocity(0, 0, 100*np.sign(up), int(up/self.METERS_PER_STEP))
         self.set_lin_velocity(0, 0, 0)
+
+    def __rotate(self, observation_name, change, update_velocity_lambda):
+        """
+        Repeatedly checks angle observation and rotates the agent
+        until it reaches the target angle.
+        """
+        # TODO: use PID
+        error=0.3
+        speed=10
+        current=self.unity_reference.observation[observation_name]
+        target=current+change
+        while True:
+            difference=target-current
+            update_velocity_lambda(speed*np.sign(difference))
+            if abs(difference)<=error:
+                break
+            else:
+                current=self.unity_reference.observation[observation_name]
 
     def rotate_angle(self, roll=0.0, pitch=0.0, yaw=0.0):
         """
         Make precise angular movement
         @param: roll float in range [-360, 360], case negative - reverse direction
         @param: pitch float in range [-360, 360], case negative - reverse direction
-        @param: yaw flaot in range [-360, 360], case negative - reverse direction
+        @param: yaw float in range [-360, 360], case negative - reverse direction
         """
         # this implementation isn't precise because it uses rotation speed
         # but I don't know how much precision is available in a real environment
         # and if it makes sense to base the algorithms on it
 
-        # move in each axis according to speed and then reset the angular velocity
-        if roll!=0:
-            self.set_ang_velocity(100*np.sign(roll), 0, 0, int(roll/self.DEGREES_PER_STEP))
-        if pitch!=0:  
-            self.set_ang_velocity(0, 100*np.sign(pitch), 0, int(pitch/self.DEGREES_PER_STEP))
-        if yaw!=0:
-            self.set_ang_velocity(0, 0, 100*np.sign(yaw), int(yaw/self.DEGREES_PER_STEP))
+        # move in each axis according to rotation observation and then reset the angular velocity
+        # uncomment these when rotation around other axis becomes possible
+        # rotate("rotation_z", roll, lambda value: self.set_ang_velocity(rollvalue, num_of_steps=1))
+        # rotate("rotation_x", pitch, lambda value: self.set_ang_velocity(pitch=value, num_of_steps=1))
+        self.__rotate("rotation_y", yaw, lambda value: self.set_ang_velocity(yaw=value, num_of_steps=1))
         self.set_ang_velocity(0, 0, 0)
         
     def pid_turn_on(self):
         """
         Turn on PID
         """
-        # same as with pid_hold_depth
+        # in the current simulation depth is kept on the same level by default
         pass
 
     def pid_turn_off(self):
         """
         Turn off PID
         """
-        # same as with pid_hold_depth
+        # same as with pid_turn_on
         pass
 
     def pid_hold_depth(self):
@@ -100,7 +114,7 @@ class Movements:
         Set the current depth as the default depth
         Function DOESN'T activate pid, use pid_turn_on additionally
         """
-        # in the current simulation depth is kept on the same level by default
+        # same as with pid_turn_on
         pass
 
     def pid_set_depth(self, depth):
@@ -108,21 +122,25 @@ class Movements:
         Set depth, function DOESN'T activate pid, use pid_turn_on additionally
         :param: depth - float - target depth for PID
         """
+        # TODO: use PID
         error=0.3
         current_depth=self.depth_sensor.get_depth()
         while np.abs(current_depth-depth)>error:
             if current_depth<depth:
-                self.set_lin_velocity(0, 0, 100)
+                self.set_lin_velocity(0, 0, 100, 1)
             else:
-                self.set_lin_velocity(0, 0, -100)
+                self.set_lin_velocity(0, 0, -100, 1)
             current_depth=self.depth_sensor.get_depth()
         self.set_lin_velocity(0, 0, 0)
 
     def pid_yaw_turn_on(self):
-        raise NotImplementedError()
+        # same as with pid_turn_on
+        pass
 
     def pid_yaw_turn_off(self):
-        raise NotImplementedError()
+        # same as with pid_turn_on
+        pass
 
     def pid_set_yaw(self, yaw):
-        raise NotImplementedError()
+        current_yaw=self.unity_reference.observation['rotation_y']
+        self.rotate_angle(0, 0, yaw-current_yaw)

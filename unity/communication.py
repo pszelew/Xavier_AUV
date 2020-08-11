@@ -1,6 +1,7 @@
 from pytransdec import TransdecCommunication, Actions, CAMERAS
 import cv2
 
+# actions that are switched on only for one step
 SWITCH_ACTIONS = [Actions.TORPEDO, Actions.MARKER_DROPPER]
 
 class Communication:
@@ -16,6 +17,10 @@ class Communication:
 
     @property
     def frame(self):
+        """
+        Get frame from the simulation.
+        :return: Frame from the simulation as BGR array
+        """
         # transcode image from unity's RGB to cv2's BGR format 
         # to match interface's expectations
         return cv2.cvtColor(self.transdec.visual[0], cv2.COLOR_RGB2BGR)
@@ -34,7 +39,7 @@ class Communication:
         self.vector_action[action]=value
 
     # this function is shared by CameraClient and UnityVision
-    # so it makes sense to use it here
+    # so it makes sense to locate it here
     def change_camera(self, id):
         """
         Change active camera
