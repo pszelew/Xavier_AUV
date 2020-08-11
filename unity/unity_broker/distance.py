@@ -1,10 +1,9 @@
-
 class DistanceSensor:
     """
     Distance Sensor
     """
-    def __init__(self, unity_reference):
-        self.unity_reference = unity_reference
+    def __init__(self, observations):
+        self.observations = observations
 
     def get_front_distance(self):
         '''
@@ -12,4 +11,4 @@ class DistanceSensor:
 
         :return: distance in cm as single float
         '''
-        return 300#return float(self.unity_reference.get_front_distance())
+        return  self.observations['front_distance']

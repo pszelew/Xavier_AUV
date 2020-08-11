@@ -1,3 +1,5 @@
+from pytransdec import Actions
+
 class Manipulator:
     """
     Broker for manipulator
@@ -9,10 +11,10 @@ class Manipulator:
         """
         Open gripper of ROV's robotic arm
         """
-        self.unity_reference.close_gripper()
+        self.unity_reference.set_vector_action(Actions.GRABBER, 1)
 
-    def open_gripper(self,):
+    def open_gripper(self):
         """
         Open gripper of ROV's robotic arm
         """
-        self.unity_reference.open_gripper()
+        self.unity_reference.set_vector_action(Actions.GRABBER, 0)

@@ -1,3 +1,5 @@
+from pytransdec import Actions
+
 class Torpedoes:
     """
     Control ROV's torpedo launcher
@@ -10,10 +12,10 @@ class Torpedoes:
         Check if torpedo is ready to lunch
         :return: True when torpedo is ready to lunch
         """
-        return True
+        return self.unity_reference.observations['torpedo_ready']
 
     def fire(self):
         """
-        Lunch single torpedo
+        Launch single torpedo
         """
-        self.unity_reference.torpedo_fire()
+        self.unity_reference.set_vector_action(Actions.TORPEDO, 1)

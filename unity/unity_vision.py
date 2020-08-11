@@ -47,7 +47,7 @@ class UnityVision():
         return True
 
     def predict(self):
-        return [observation_to_bounding_box(self.unity_reference.get_observations())]
+        return [observation_to_bounding_box(self.unity_reference.observation)]
 
     def change_threshold(self, threshold = 0.5, retries = 3) -> bool:
         return True

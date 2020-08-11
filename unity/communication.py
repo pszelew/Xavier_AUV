@@ -1,16 +1,13 @@
-from pytransdec import TransdecCommunication
+from pytransdec import TransdecCommunication, Actions, CAMERAS
 import cv2
 
-CAMERAS = {
-    "front" : 0,
-    "bottom" : 1
-}
+SWITCH_ACTIONS = [Actions.TORPEDO, Actions.MARKER_DROPPER]
 
 class Communication:
     def __init__(self):
         self.transdec = TransdecCommunication()
         self.transdec.reset()
-        self.vector_action = [0] * 7
+        self.vector_action = [0] * Actions.COUNT
         self.text_action=None
 
     @property
@@ -29,40 +26,26 @@ class Communication:
     def next_step(self, number_of_step = 1):
         for _ in range(number_of_step):
             self.transdec.step(self.vector_action)
-        self.vector_action[6] = 0
+        for i in SWITCH_ACTIONS:
+            self.vector_action[i] = 0
         self.text_action=None
 
-    def set_longitudal_movement(self, front_speed):
-        self.vector_action[0] = front_speed
+    def set_vector_action(self, action:Actions, value):
+        self.vector_action[action]=value
 
-    def set_lateral_movement(self, right_speed):
-        self.vector_action[1] = right_speed
-
-    def set_vertical_movement(self, upward_speed):
-        self.vector_action[2] = upward_speed
-        
-    def set_yaw_movement(self, right_turn_speed):
-        self.vector_action[3] = right_turn_speed
-
+    # this function is shared by CameraClient and UnityVision
+    # so it makes sense to use it here
     def change_camera(self, id):
+        """
+        Change active camera
+        :param id: [Int] key in CAMERAS dict representing the camera
+        """
         if id in CAMERAS:
-            self.vector_action[4]=CAMERAS[id]
+            self.vector_action[Actions.CAMERA]=CAMERAS[id]
             return True
         else:
             return False
         self.next_step()
-
-    def close_gripper(self):
-        self.vector_action[5] = 1
-
-    def open_gripper(self):
-        self.vector_action[5] = 0
-
-    def fire_torpedo(self, command):
-        self.vector_action[6] = 1
-
-    def get_observations(self):
-        return self.transdec.vector
 
     def close_simulation(self):
         del self.transdec

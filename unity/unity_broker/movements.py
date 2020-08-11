@@ -1,4 +1,5 @@
 import numpy as np
+from pytransdec import Actions
 """
 Module includes IMovements
 """
@@ -25,9 +26,9 @@ class Movements:
         def to_range(value):
             return np.clip(value, -1, 1)
 
-        self.unity_reference.set_longitudal_movement(to_range(front/100))
-        self.unity_reference.set_lateral_movement(-to_range(right/100))
-        self.unity_reference.set_vertical_movement(to_range(up/100))
+        self.unity_reference.set_vector_action(Actions.LONGITUDINAL, to_range(front/100))
+        self.unity_reference.set_vector_action(Actions.LATERAL, -to_range(right/100))
+        self.unity_reference.set_vector_action(Actions.VERTICAL, to_range(up/100))
         self.unity_reference.next_step(num_of_steps)
 
     def set_ang_velocity(self, roll=0, pitch=0, yaw=0, num_of_steps: int=10):
@@ -37,7 +38,7 @@ class Movements:
         @param: pitch int in range [-100, 100], case negative - reverse direction
         @param: yaw int in range [-100,100], case negative - reverse direction
         """
-        self.unity_reference.set_yaw_movement(yaw/100)
+        self.unity_reference.set_vector_action(Actions.YAW, yaw/100)
         self.unity_reference.next_step(num_of_steps)
 
     def move_distance(self, front=0.0, right=0.0, up=0.0):
@@ -115,6 +116,7 @@ class Movements:
             else:
                 self.set_lin_velocity(0, 0, -100)
             current_depth=self.depth_sensor.get_depth()
+        self.set_lin_velocity(0, 0, 0)
 
     def pid_yaw_turn_on(self):
         raise NotImplementedError()
