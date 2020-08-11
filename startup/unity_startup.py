@@ -53,7 +53,7 @@ class UnityStartup():
         self.ahrs = AHRS(self.unity_observation)
         self.depth_sensor = DepthSensor(self.unity_observation)
         self.distance_sensor = DistanceSensor(self.unity_observation)
-        self.hydrophones = Hydrophones(self.unity_observation)
+        self.hydrophones = Hydrophones(self.unity)
         logger.log("sensors created")
 
         self._sensors = {'ahrs': self.ahrs,

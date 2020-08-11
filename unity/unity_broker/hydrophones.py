@@ -1,3 +1,4 @@
+from pytransdec import Actions
 
 class Hydrophones:
     """
@@ -10,4 +11,6 @@ class Hydrophones:
         '''
         @param frequency is a listening frequency for demanded pinger
         '''
-        pass
+        self.unity_reference.set_vector_action(Actions.HYDROPHONE_FREQUENCY, frequency)
+        self.unity_reference.next_step()
+        return  self.unity_reference.observation['hydrophone_angle']

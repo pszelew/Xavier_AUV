@@ -94,13 +94,15 @@ class BucketTaskExecutor(ITaskExecutor):
         bbox = False
         if angle_to_pinger:
             i = 0
-            while bbox is not True and i < 5:
+            while not bbox and i < 5:
                 self._control.rotate_angle(yaw = angle_to_pinger)
                 self._control.set_lin_velocity(front = 50)
                 sleep(self.SEARCHING_BUCKETS_FORWARD_TIME)
                 self._control.set_lin_velocity(front = 0)
-                bbox = self.vision.predict()[0].normalize(480,480)
-                angle_to_pinger = self._hydrophones._hydrophones.get_angle(self.PINGER_FREQ)
+                bbox = self.vision.predict()[0]
+                if bbox:
+                    bbox=bbox.normalize(480,480)
+                angle_to_pinger = self._hydrophones.get_angle(self.PINGER_FREQ)
                 i += 1
         if bbox:
             center_rov(self._control, Bbox = bbox)
@@ -110,8 +112,9 @@ class BucketTaskExecutor(ITaskExecutor):
             self._logger.log("Starting desparate algorythm")
             for i in range(18):
                 self._control.rotate_angle(yaw = 20)
-                bbox = self.vision.predict()[0].normalize(480,480)
+                bbox = self.vision.predict()[0]
                 if bbox:
+                    bbox=bbox.normalize(480,480)
                     center_rov(self._control, Bbox = bbox)
                     self._logger.log("Buckets task found")
                     return 1
