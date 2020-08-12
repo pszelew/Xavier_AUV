@@ -59,23 +59,23 @@ class Movements:
         self.set_lin_velocity(0, 0, 100*np.sign(up), int(up/self.METERS_PER_STEP))
         self.set_lin_velocity(0, 0, 0)
 
-    def __rotate(self, observation_name, change, update_velocity_lambda):
+    def __approach(self, observation_name, target, update_value_lambda, error=0.3, speed=10):
         """
-        Repeatedly checks angle observation and rotates the agent
+        Repeatedly checks angle observation and updates the agent
         until it reaches the target angle.
         """
         # TODO: use PID
-        error=0.3
-        speed=10
-        current=self.unity_reference.observation[observation_name]
-        target=current+change
         while True:
+            current=self.unity_reference.observation[observation_name]
             difference=target-current
-            update_velocity_lambda(speed*np.sign(difference))
+            update_value_lambda(speed*np.sign(difference))
             if abs(difference)<=error:
                 break
-            else:
-                current=self.unity_reference.observation[observation_name]
+
+    def __approach_relative(self, observation_name, change, update_value_lambda):
+        current=self.unity_reference.observation[observation_name]
+        target=current+change
+        self.__approach(observation_name, target, update_value_lambda)
 
     def rotate_angle(self, roll=0.0, pitch=0.0, yaw=0.0):
         """
@@ -92,7 +92,7 @@ class Movements:
         # uncomment these when rotation around other axis becomes possible
         # rotate("rotation_z", roll, lambda value: self.set_ang_velocity(rollvalue, num_of_steps=1))
         # rotate("rotation_x", pitch, lambda value: self.set_ang_velocity(pitch=value, num_of_steps=1))
-        self.__rotate("rotation_y", yaw, lambda value: self.set_ang_velocity(yaw=value, num_of_steps=1))
+        self.__approach_relative("rotation_y", yaw, lambda value: self.set_ang_velocity(yaw=value, num_of_steps=1))
         self.set_ang_velocity(0, 0, 0)
         
     def pid_turn_on(self):
@@ -122,15 +122,7 @@ class Movements:
         Set depth, function DOESN'T activate pid, use pid_turn_on additionally
         :param: depth - float - target depth for PID
         """
-        # TODO: use PID
-        error=0.3
-        current_depth=self.depth_sensor.get_depth()
-        while np.abs(current_depth-depth)>error:
-            if current_depth<depth:
-                self.set_lin_velocity(0, 0, 100, 1)
-            else:
-                self.set_lin_velocity(0, 0, -100, 1)
-            current_depth=self.depth_sensor.get_depth()
+        self.__approach("depth", depth, lambda value: self.set_lin_velocity(up=value, num_of_steps=1), speed=0)
         self.set_lin_velocity(0, 0, 0)
 
     def pid_yaw_turn_on(self):

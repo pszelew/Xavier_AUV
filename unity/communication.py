@@ -1,8 +1,8 @@
 from pytransdec import TransdecCommunication, Actions, CAMERAS
 import cv2
 
-# actions that are switched on only for one step
-SWITCH_ACTIONS = [Actions.TORPEDO, Actions.MARKER_DROPPER]
+# actions that are reset to zero after one step
+SWITCH_ACTIONS = [Actions.TORPEDO, Actions.MARKER_DROPPER, Actions.HYDROPHONE_FREQUENCY]
 
 class Communication:
     def __init__(self):
@@ -40,17 +40,17 @@ class Communication:
 
     # this function is shared by CameraClient and UnityVision
     # so it makes sense to locate it here
-    def change_camera(self, id):
+    def change_camera(self, camera):
         """
         Change active camera
-        :param id: [Int] key in CAMERAS dict representing the camera
+        :param camera: [Int] key in CAMERAS dict representing the camera
         """
-        if id in CAMERAS:
-            self.vector_action[Actions.CAMERA]=CAMERAS[id]
+        if camera in CAMERAS:
+            self.vector_action[Actions.CAMERA]=CAMERAS[camera]
+            self.next_step()
             return True
         else:
             return False
-        self.next_step()
 
     def close_simulation(self):
         del self.transdec

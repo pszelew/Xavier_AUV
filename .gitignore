@@ -128,6 +128,9 @@ venv.bak/
 .Trash-1000/info/ports.2.txt.trashinfo
 .Trash-1000/info/ports.txt.trashinfo
 
+# this file is changed at each run
+ports.txt
+
 # personal development scripts
 setup.ps1
 kill.ps1

@@ -43,8 +43,7 @@ class UnityVision():
         return True
 
     def change_camera(self,camera,retries = 3) -> bool:
-        self.unity_reference.change_camera(camera)
-        return True
+        return self.unity_reference.change_camera(camera)
 
     def predict(self):
         return [observation_to_bounding_box(self.unity_reference.observation)]
