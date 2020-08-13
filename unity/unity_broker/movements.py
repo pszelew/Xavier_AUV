@@ -122,7 +122,7 @@ class Movements:
         Set depth, function DOESN'T activate pid, use pid_turn_on additionally
         :param: depth - float - target depth for PID
         """
-        self.__approach("depth", depth, lambda value: self.set_lin_velocity(up=value, num_of_steps=1), speed=0)
+        self.__approach("depth", depth, lambda value: self.set_lin_velocity(up=value, num_of_steps=1), speed=30)
         self.set_lin_velocity(0, 0, 0)
 
     def pid_yaw_turn_on(self):
