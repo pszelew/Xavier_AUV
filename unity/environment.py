@@ -6,7 +6,7 @@ class Environment:
     # that waits for some action and if it doesn't receive anything for some time 
     # it performs a step. Implementing all of that, synchronizing it correctly 
     # and fixing all of the bugs is just not worth it.
-    # I didn't make this into function like object because calls like self.sleep(seconds)
+    # I didn't make this into function-like object because calls like self.sleep(seconds)
     # inside of tasks would look really confusing.
 
     # Remember to check if the calculation below works correctly for you.

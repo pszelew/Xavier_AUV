@@ -1,6 +1,4 @@
 from tasks.task_executor_itf import ITaskExecutor
-from neural_networks.DarknetClient import DarknetClient
-from communication.rpi_broker.movements import Movements
 from utils.stopwatch import Stopwatch
 from configs.config import get_config
 from definitions import IP_ADDRESS, DARKNET_PORT
@@ -13,10 +11,10 @@ import math as m
 class FlaresTaskExecutor(ITaskExecutor):
 
     ###Initialization###
-    def __init__(self, control_dict: Movements, sensors_dict, main_logger):
+    def __init__(self, control_dict, sensors_dict, vision, environment, main_logger):
         self._control = control_dict['movements']
         self._hydrophones = sensors_dict['hydrophones']
-        self.darknet_client = DarknetClient(DARKNET_PORT, IP_ADDRESS)
+        self._vision = vision
         self._bounding_box = BoundingBox(0, 0, 0, 0)
         self._logger = main_logger
         self.config = get_config('tasks')['localization']
@@ -76,7 +74,7 @@ class FlaresTaskExecutor(ITaskExecutor):
         MOVING_AVERAGE_DISCOUNT = config['moving_avg_discount']
         CONFIDENCE_THRESHOLD = config['confidence_threshold']
 
-        bbox = self.darknet_client.predict()[0].normalize(480, 480)
+        bbox = self._vision.predict()[0].normalize(480, 480)
 
         if bbox is not None:
             self.confidence = mvg_avg(1, self.confidence, MOVING_AVERAGE_DISCOUNT)
@@ -111,7 +109,7 @@ class FlaresTaskExecutor(ITaskExecutor):
         stopwatch.start()
 
         while stopwatch <= MAX_TIME_SEC:
-            bbox = self.darknet_client.predict()[0].normalize(480,480)
+            bbox = self._vision.predict()[0].normalize(480,480)
             self.flare_position = location_calculator(bbox, flare_size, "height")
             angle = -m.degrees(m.atan2(self.flare_position['x'], self.flare_position['distance']))
             if abs(angle) <= MAX_CENTER_ANGLE_DEG:
@@ -170,7 +168,7 @@ class FlaresTaskExecutor(ITaskExecutor):
         """
         if doesn't see the flare, then it's knocked
         """
-        if self.darknet_client.predict()[0] is None:
+        if self._vision.predict()[0] is None:
             self._logger.log("can't see flare - flare knocked")
             return True
         self._logger.log("flare still visible - flare not knocked")

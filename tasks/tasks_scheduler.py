@@ -5,6 +5,7 @@ from tasks.SAUVC.buckets.task_executor.buckets_task_executor import BucketTaskEx
 from tasks.tests.coke_centering import CokeCenteringTest
 from tasks.tests.unity_test import UnityTest
 from tasks.SAUVC.qualification.qualification_task_executor import GateTaskExecutor as GateExecutor
+from tasks.SAUVC.flares.task_executor.flares_task_executor import FlaresTaskExecutor
 
 class TaskSchedululer(ITaskExecutor):
 
@@ -48,5 +49,12 @@ class TaskSchedululer(ITaskExecutor):
                                              self.vision, self.environment,
                                              self.logger, 'blue')
         bucket_executor.run()
+
+        # the config file doesn't contain keys required by the task
+        # but otherwise it should work
+        # flares_executor = FlaresTaskExecutor(self.control_dict, self.sensors_dict,
+        #                                     self.vision, self.environment, self.logger)
+        
+        # flares_executor.run()
         
         self.logger.log("Scheduler finished")
