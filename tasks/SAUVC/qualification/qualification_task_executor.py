@@ -3,7 +3,6 @@ from communication.rpi_broker.movements import Movements
 from neural_networks.DarknetClient import DarknetClient
 from utils.stopwatch import Stopwatch
 from configs.config import get_config
-from time import sleep
 from utils.signal_processing import mvg_avg
 from utils.centering import center_rov
 
@@ -11,8 +10,7 @@ from utils.centering import center_rov
 class GateTaskExecutor(ITaskExecutor):
 
     ###Initialization###
-    def __init__(self, control_dict, sensors_dict,
-                main_logger):
+    def __init__(self, control_dict, sensors_dict, vision, environment, main_logger):
         self._control = control_dict
         self.depth_sensor = sensors_dict['depth']
         self._logger = main_logger
@@ -20,6 +18,7 @@ class GateTaskExecutor(ITaskExecutor):
         self.darknet_client = DarknetClient()
         self.config = get_config('tasks')['qualification_task']
         self.confidence = 0
+        self.environment=environment
 
         self.movements.pid_turn_on()
         self._logger.log("Qualification task executor init done")
@@ -138,7 +137,7 @@ class GateTaskExecutor(ITaskExecutor):
 
         self.movements.set_lin_velocity(MAX_ENGINE_POWER, 0, 0)
 
-        sleep(GO_TIME_SEC)
+        self.environment.sleep(GO_TIME_SEC)
 
     def is_gate_passed(self):
         if not self.find_gate():
@@ -152,6 +151,6 @@ class GateTaskExecutor(ITaskExecutor):
         config = self.config['end']
         GO_TIME_SEC = config['go_time_sec']
         self._logger.log("moving forward for 5s - everything is fine")  # TODO: no to tak nie może być opisane xD
-        sleep(GO_TIME_SEC)
+        self.environment.sleep(GO_TIME_SEC)
         self.movements.set_lin_velocity(0, 0, 0)
         self._logger.log("finished movement")

@@ -208,11 +208,7 @@ class BucketTaskExecutor(ITaskExecutor):
         bbox = self.vision.predict()[0]
         while bbox is None and stopwatch.time() < self.MAX_TIME_SEC:
             bbox = self.vision.predict()[0]
-            # now there is a problem, because
-            # the unity environment need to be updated with next_step 
-            # # or else it will be frozen 
-            self._control.set_lin_velocity(front = 20)
-            # sleep(0.3)
+            self.environment.sleep(0.3)
         if bbox is None:
             self._logger.log("Could not locate bucket")
             return 0

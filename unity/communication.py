@@ -30,7 +30,7 @@ class Communication:
 
     def next_step(self, number_of_step = 1):
         for _ in range(number_of_step):
-            self.transdec.step(self.vector_action)
+            self.transdec.step(self.vector_action, self.text_action)
         for i in SWITCH_ACTIONS:
             self.vector_action[i] = 0
         self.text_action=None
@@ -57,6 +57,7 @@ class Communication:
 
     def choose_target(self, target_name):
         self.text_action=target_name
+        self.next_step()
 
 if __name__ == "__main__":
     unity = Communication()

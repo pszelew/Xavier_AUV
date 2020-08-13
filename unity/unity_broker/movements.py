@@ -8,7 +8,7 @@ class Movements:
     # adjust this values for the simulation
     # by setting the angular roll velocity for one step
     # and checking how much the ROV position changed 
-    METERS_PER_STEP=0.01
+    METERS_PER_STEP=0.1
     """
     Interface for controlling ROV movement in simulation
     """
@@ -29,7 +29,7 @@ class Movements:
 
         self.unity_reference.set_vector_action(Actions.LONGITUDINAL, to_range(front/100))
         self.unity_reference.set_vector_action(Actions.LATERAL, -to_range(right/100))
-        self.unity_reference.set_vector_action(Actions.VERTICAL, to_range(up/100))
+        self.unity_reference.set_vector_action(Actions.VERTICAL, -to_range(up/100))
         self.unity_reference.next_step(num_of_steps)
 
     def set_ang_velocity(self, roll=0, pitch=0, yaw=0, num_of_steps: int=10):
@@ -122,7 +122,7 @@ class Movements:
         Set depth, function DOESN'T activate pid, use pid_turn_on additionally
         :param: depth - float - target depth for PID
         """
-        self.__approach("depth", depth, lambda value: self.set_lin_velocity(up=value, num_of_steps=1), speed=30)
+        self.__approach("depth", depth, lambda value: self.set_lin_velocity(up=-value, num_of_steps=1), speed=30)
         self.set_lin_velocity(0, 0, 0)
 
     def pid_yaw_turn_on(self):

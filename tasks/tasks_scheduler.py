@@ -29,18 +29,19 @@ class TaskSchedululer(ITaskExecutor):
         This method is started by main object.
         """
         self.logger.log("Task scheduler is running")
-        """
-        unity_test = UnityTest(self.control_dict, self.sensors_dict, self.logger)
+        
+        unity_test = UnityTest(self.control_dict, self.sensors_dict, 
+                                                self.vision, self.environment, self.logger)
         unity_test.run()
    
         coke_centering_test = CokeCenteringTest(self.control_dict,self.sensors_dict,
-                                               self.vision, self.logger)
+                                                self.vision, self.environment, self.logger)
         coke_centering_test.run()
         
         gate_executor = GateExecutor(self.control_dict, self.sensors_dict,
-                                     self.logger)
+                                                self.vision, self.environment, self.logger)
         gate_executor.run()
-        """     
+           
         #self.logger.log("Gate finshed")
 
         bucket_executor = BucketTaskExecutor(self.control_dict, self.sensors_dict, 
