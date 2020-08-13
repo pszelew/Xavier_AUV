@@ -30,6 +30,8 @@ class FlaresTaskExecutor(ITaskExecutor):
 
         self._logger.log("starting localization task loop")
 
+        self._vision.load_model('flare')
+
         while True:
             self.center_on_pinger()
 

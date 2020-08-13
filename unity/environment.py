@@ -28,4 +28,4 @@ class Environment:
         # update at least once and the program won't just freeze.
         if steps==0:
             steps=1
-        self.unity_reference.next_step()
+        self.unity_reference.next_step(steps)

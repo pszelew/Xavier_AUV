@@ -52,9 +52,9 @@ class TaskSchedululer(ITaskExecutor):
 
         # the config file doesn't contain keys required by the task
         # but otherwise it should work
-        # flares_executor = FlaresTaskExecutor(self.control_dict, self.sensors_dict,
-        #                                     self.vision, self.environment, self.logger)
+        flares_executor = FlaresTaskExecutor(self.control_dict, self.sensors_dict,
+                                             self.vision, self.environment, self.logger)
         
-        # flares_executor.run()
+        flares_executor.run()
         
         self.logger.log("Scheduler finished")

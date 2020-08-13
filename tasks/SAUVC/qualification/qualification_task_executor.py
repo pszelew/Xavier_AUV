@@ -15,7 +15,7 @@ class GateTaskExecutor(ITaskExecutor):
         self.depth_sensor = sensors_dict['depth']
         self._logger = main_logger
         self.movements = control_dict['movements']
-        self.darknet_client = DarknetClient()
+        self.vision = vision
         self.config = get_config('tasks')['qualification_task']
         self.confidence = 0
         self.environment=environment
@@ -30,7 +30,7 @@ class GateTaskExecutor(ITaskExecutor):
 
         self.dive()
 
-        #self.darknet_client.load_model('gate') # Loaded default in Darknet Server initialization
+        self.vision.load_model('gate')
 
         self._logger.log("Gate model loaded")
 
@@ -68,7 +68,7 @@ class GateTaskExecutor(ITaskExecutor):
                         return True
             elif MODE == "simple":
                 bbox = False
-                bbox = self.darknet_client.predict()[0].normalize(480, 480)
+                bbox = self.vision.predict()[0].normalize(480, 480)
                 if not bbox:
                     self._logger.log("gate not found")
                     return False
@@ -86,7 +86,7 @@ class GateTaskExecutor(ITaskExecutor):
 
         bbox = False
 
-        bbox = self.darknet_client.predict()
+        bbox = self.vision.predict()
         bbox = bbox[0].normalize(480, 480)
 
 
@@ -121,11 +121,11 @@ class GateTaskExecutor(ITaskExecutor):
 
         while stopwatch.time() <= MAX_TIME_SEC:
 
-            bbox = self.darknet_client.predict()[0].normalize(480, 480)
-            if bbox.x <= MAX_CENTER_DISTANCE & bbox.y <= MAX_CENTER_DISTANCE:
+            bbox = self.vision.predict()[0].normalize(480, 480)
+            if bbox.x <= MAX_CENTER_DISTANCE and bbox.y <= MAX_CENTER_DISTANCE:
                 self._logger.log("centered on gate successfully")
                 return True
-            center_rov(move=self._control, Bbox=bbox, depth_sensor=self.depth_sensor)
+            center_rov(move=self.movements, Bbox=bbox, depth_sensor=self.depth_sensor)
         self._logger.log("couldn't center on gate")
         return False
 
