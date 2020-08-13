@@ -8,6 +8,7 @@ from neural_networks.DarknetClient import DarknetClient
 
 # Sensors
 from communication.communication import Communication
+from communication.environment import Environment
 
 from communication.rpi_broker.ahrs import AHRS
 from communication.rpi_broker.depth_sensor import DepthSensor
@@ -74,6 +75,8 @@ class RovStartup():
                         #torpedoes': self.torpedoes,
                         #'manipulator': self.manipulator,
                         'dropper': self.dropper}
+
+        self.environment=Environment()
         
     @property
     def sensors(self):

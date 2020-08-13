@@ -12,6 +12,7 @@ class BucketTaskExecutor(ITaskExecutor):
     def __init__(self, control_dict: Movements,
                 sensors_dict,
                 vision,
+                environment,
                 main_logger, bucket):       #bucket = 'blue' or 'red' or 'pinger'
         self._control = control_dict['movements']
         self._dropper = control_dict['dropper']
@@ -25,11 +26,11 @@ class BucketTaskExecutor(ITaskExecutor):
         self.SEARCHING_BUCKETS_FORWARD_TIME = self.config['search']['SEARCHING_BUCKETS_FORWARD_TIME']
         self.PINGER_FREQ = self.config['search']['PINGER_FREQ']
         self.POSITION_THRESHOLD = self.config['search']['POSITION_THRESHOLD']
+        self.vision = vision
+        self.environment=environment
+
         self._control.pid_turn_on()
         self._control.pid_set_depth(self.config['search']['max_depth'])
-
-        self.vision = vision
-
         self._logger.log('Buckets: diving')
 
     def run(self):
@@ -97,7 +98,7 @@ class BucketTaskExecutor(ITaskExecutor):
             while not bbox and i < 5:
                 self._control.rotate_angle(yaw = angle_to_pinger)
                 self._control.set_lin_velocity(front = 50)
-                sleep(self.SEARCHING_BUCKETS_FORWARD_TIME)
+                self.environment.sleep(self.SEARCHING_BUCKETS_FORWARD_TIME)
                 self._control.set_lin_velocity(front = 0)
                 bbox = self.vision.predict()[0]
                 if bbox:
@@ -136,7 +137,7 @@ class BucketTaskExecutor(ITaskExecutor):
             i = 0
             while bbox is None and i < 5:
                 self._control.rotate_angle(angle_to_pinger)
-                sleep(2)
+                self.environment.sleep(2)
                 bbox = self.vision.predict()[0]
                 if bbox:
                     bbox=bbox.normalize(480,480)
@@ -194,7 +195,7 @@ class BucketTaskExecutor(ITaskExecutor):
                     self._logger.log("Could not center above bucket")
                     return 0
             self._control.rotate_angle(yaw = 20)
-            sleep(2)
+            self.environment.sleep(2)
 
     def center_above_bucket(self):
         '''

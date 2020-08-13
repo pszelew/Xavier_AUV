@@ -9,7 +9,6 @@ from tasks.tasks_scheduler import TaskSchedululer
 
 from definitions import MAINDEF, CAMERAS,IP_ADDRESS, LOG_DIRECOTRY
 
-
 class Main():
     '''
     Creates object of all sensor types, packs their references into
@@ -32,7 +31,10 @@ class Main():
             self.startup=RovStartup(self.logger)
 
         # task sheduler
-        self.task_scheduler = TaskSchedululer(self.startup.control, self.startup.sensors, self.startup.vision, self.logger)
+        self.task_scheduler = TaskSchedululer(self.startup.control, self.startup.sensors, 
+                                              self.startup.vision, self.startup.environment, 
+                                              self.logger)
+
         self.logger.log("Task scheduler created")
 
     def run(self):

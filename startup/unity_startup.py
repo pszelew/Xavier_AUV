@@ -7,6 +7,7 @@ from unity.camera_client import CameraClient
 
 # Sensors
 from unity.communication import Communication
+from unity.environment import Environment
 
 from unity.unity_broker.ahrs import AHRS
 from unity.unity_broker.depth_sensor import DepthSensor
@@ -71,6 +72,8 @@ class UnityStartup():
                         'torpedoes': self.torpedoes,
                         'manipulator': self.manipulator,
                         'dropper': self.dropper}
+
+        self.environment=Environment(self.unity)
 
     @property
     def sensors(self):
